@@ -7,7 +7,7 @@ export function SourceLink({ id, note }: { id: string; note?: string }) {
     <a
       href={s.url}
       target="_blank"
-      rel="noreferrer"
+      rel="noopener noreferrer"
       className="group flex items-start justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3 transition-colors hover:border-accent/40 hover:bg-accent-soft/40"
     >
       <span className="min-w-0">

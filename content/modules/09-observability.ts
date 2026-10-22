@@ -5,9 +5,9 @@ const r = String.raw;
 const observability: ModuleInput = {
   slug: 'observability',
   title: 'Observability',
-  subtitle: 'Temukan penyebab, bukan hanya gejalanya.',
+  subtitle: 'Cari penyebab error lewat health, logs, metrics, dan traces.',
   description:
-    'Endpoint health dan operasional dengan Actuator, tiga sinyal observability (log, metrics, trace), distributed tracing antarservice dengan Micrometer, serta liveness, readiness, dan startup probe.',
+    'Tambahkan endpoint Actuator, baca logs dan metrics, lalu ikuti request antarservice dengan distributed tracing. Atur juga liveness, readiness, dan startup probe agar platform bisa memeriksa kondisi aplikasi.',
   category: 'Operasional',
   hours: '4–6',
   tint: 'mint',
@@ -59,7 +59,7 @@ const observability: ModuleInput = {
             { label: 'Tidak ada wildcard `*`', pattern: r`include\s*:\s*["']?\*`, absent: true, hint: 'Hapus wildcard; ekspos hanya endpoint yang dibutuhkan.' },
             { label: '`show-details: when-authorized`', pattern: r`^\s+show-?[dD]etails\s*:\s*when[-_]authorized\s*$`, hint: 'Tambahkan `management.endpoint.health.show-details: when-authorized`.' },
           ],
-          explanation: 'Endpoint seperti `env`, `heapdump`, dan `configprops` bisa membocorkan rahasia atau data memori. Ekspos hanya yang perlu, dan lindungi dengan Spring Security atau port manajemen terpisah.',
+          explanation: 'Endpoint seperti `env`, `heapdump`, dan `configprops` bisa membocorkan secret atau data memori. Ekspos hanya yang perlu, dan lindungi dengan Spring Security atau port manajemen terpisah.',
         },
         {
           kind: 'choice',
@@ -86,7 +86,7 @@ const observability: ModuleInput = {
         'Membuat metrics kustom dengan Micrometer.',
       ],
       keyPoints: [
-        'Metrics menjawab "seberapa sering/seberapa lama"; murah disimpan dan cocok untuk alert.',
+        'Metrics menjawab "seberapa sering/seberapa lama"; merangkum data numerik dan cocok untuk alert.',
         'Log menjawab "apa yang terjadi pada kejadian ini"; detail tetapi mahal pada volume besar.',
         'Trace menjawab "di mana waktu habis dalam satu request lintas service".',
         'Log terstruktur (JSON) dengan trace ID memudahkan pencarian dan korelasi.',
@@ -161,14 +161,14 @@ class PlaceOrder {
             { text: '`log.debug("Login password={}", password)`', why: 'Password tidak boleh pernah ditulis ke log.' },
             { text: '`log.info("Customer {}", customer)` dengan toString berisi NIK dan alamat', why: 'Data pribadi di log menimbulkan risiko privasi dan kepatuhan.' },
           ],
-          explanation: 'Log menyebar ke banyak sistem dan sering disimpan lama dengan akses yang luas. Catat ID dan konteks teknis, bukan rahasia atau data pribadi.',
+          explanation: 'Log menyebar ke banyak sistem dan sering disimpan lama dengan akses yang luas. Catat ID dan konteks teknis, bukan secret atau data pribadi.',
         },
       ],
     },
     {
       slug: 'tracing-antarservice',
       title: 'Tracing antarservice',
-      summary: 'Distributed tracing menyambungkan span dari beberapa service menjadi satu trace, sehingga kamu bisa melihat di mana waktu dan error terjadi.',
+      summary: 'Distributed tracing menyambungkan span dari beberapa service menjadi satu trace, sehingga kamu bisa menemukan operasi yang lambat atau gagal.',
       minutes: 40,
       objectives: [
         'Menjelaskan trace, span, dan propagasi konteks.',
@@ -198,7 +198,7 @@ class PlaceOrder {
             { text: 'Database Order dan Inventory berbeda.', why: 'Tracing HTTP tidak bergantung pada database.' },
             { text: 'Sampling 100% terlalu tinggi.', why: 'Sampling tinggi tidak memisahkan trace.' },
           ],
-          explanation: 'Builder yang diautokonfigurasi Spring Boot sudah diinstrumentasi Micrometer Observation. Klien yang dibuat manual melewati instrumentasi itu.',
+          explanation: 'Builder yang disediakan auto-configuration Spring Boot sudah diinstrumentasi Micrometer Observation. Klien yang dibuat manual melewati instrumentasi itu.',
         },
         {
           kind: 'fill',
@@ -232,7 +232,7 @@ class PlaceOrder {
     {
       slug: 'liveness-readiness-startup',
       title: 'Liveness, readiness & startup',
-      summary: 'Probe memberi tahu platform kapan instans siap menerima trafik dan kapan perlu di-restart. Salah konfigurasi bisa menyebabkan restart massal.',
+      summary: 'Probe memberi tahu platform kapan instance siap menerima traffic dan kapan perlu di-restart. Salah konfigurasi bisa menyebabkan restart massal.',
       minutes: 35,
       objectives: [
         'Membedakan liveness, readiness, dan startup probe.',
@@ -240,11 +240,11 @@ class PlaceOrder {
         'Menghindari dependency eksternal di liveness.',
       ],
       keyPoints: [
-        'Readiness: apakah instans siap menerima trafik? Gagal → dikeluarkan dari load balancing.',
+        'Readiness: apakah instance siap menerima traffic? Gagal → dikeluarkan dari load balancing.',
         'Liveness: apakah proses masih sehat? Gagal → container di-restart.',
         'Startup probe memberi waktu aplikasi yang lambat start sebelum liveness diperiksa.',
         'Spring Boot menyediakan `/actuator/health/liveness` dan `/actuator/health/readiness`.',
-        'Jangan masukkan database atau service lain ke liveness; kegagalan bersama akan me-restart semua instans.',
+        'Jangan masukkan database atau service lain ke liveness; kegagalan bersama akan me-restart semua instance.',
       ],
       practice: {
         task: 'Simulasikan aplikasi yang belum siap menerima request (misalnya cache belum dimuat) dengan `AvailabilityChangeEvent`.',
@@ -258,14 +258,14 @@ class PlaceOrder {
         {
           kind: 'choice',
           id: 'probe-db',
-          prompt: 'Database bersama sedang down selama 2 menit. Jika health database dimasukkan ke **liveness** probe semua instans, apa yang terjadi?',
+          prompt: 'Database bersama sedang down selama 2 menit. Jika health database dimasukkan ke **liveness** probe semua instance, apa yang terjadi?',
           options: [
-            { text: 'Semua instans di-restart berulang kali walau restart tidak memperbaiki database.', correct: true },
+            { text: 'Semua instance di-restart berulang kali walau restart tidak memperbaiki database.', correct: true },
             { text: 'Database otomatis pulih.', why: 'Restart aplikasi tidak memperbaiki database.' },
             { text: 'Tidak ada efek.', why: 'Liveness yang gagal memicu restart container.' },
-            { text: 'Hanya satu instans yang di-restart.', why: 'Semua instans melihat database yang sama-sama down.' },
+            { text: 'Hanya satu instance yang di-restart.', why: 'Semua instance melihat database yang sama-sama down.' },
           ],
-          explanation: 'Kegagalan dependency bersama lebih tepat ditangani readiness (berhenti menerima trafik) atau sama sekali tidak di probe, bukan restart.',
+          explanation: 'Kegagalan dependency bersama lebih tepat ditangani readiness (berhenti menerima traffic) atau sama sekali tidak di probe, bukan restart.',
         },
         {
           kind: 'code',

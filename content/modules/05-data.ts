@@ -5,9 +5,9 @@ const r = String.raw;
 const data: ModuleInput = {
   slug: 'data-transaksi',
   title: 'Data & transaksi',
-  subtitle: 'Simpan data tanpa mengabaikan konsistensi.',
+  subtitle: 'Simpan data dan atur transaksi dengan Spring Data JPA.',
   description:
-    'Memetakan entity dengan JPA, memakai Spring Data repository, menentukan batas transaksi lokal, mengelola skema dengan migrasi berversi, dan mengenali biaya query seperti masalah N+1.',
+    'Petakan entity ke tabel, buat repository, dan tentukan operasi yang harus berada dalam satu transaksi. Kamu juga akan menulis database migration dan memeriksa query untuk menemukan masalah seperti N+1.',
   category: 'Spring Boot',
   hours: '7–10',
   tint: 'yellow',
@@ -73,7 +73,7 @@ public class Order {
             { label: '`@GeneratedValue(strategy = GenerationType.IDENTITY)`', pattern: r`@GeneratedValue\s*\(\s*strategy\s*=\s*GenerationType\s*\.\s*IDENTITY\s*\)`, hint: 'Tulis `@GeneratedValue(strategy = GenerationType.IDENTITY)`.' },
             { label: 'Constructor tanpa argumen `protected`', pattern: r`protected\s+Order\s*\(\s*\)`, hint: 'Tambahkan `protected Order() {}` untuk JPA.' },
           ],
-          explanation: '`@Table(name = "orders")` juga disarankan karena `order` adalah kata kunci SQL. Constructor `protected` memenuhi kebutuhan JPA tanpa membuka pembuatan object kosong untuk kode lain.',
+          explanation: '`@Table(name = "orders")` juga disarankan karena `order` adalah SQL keyword. Constructor `protected` memenuhi kebutuhan JPA tanpa membuka pembuatan object kosong untuk kode lain.',
         },
         {
           kind: 'fill',
@@ -93,12 +93,12 @@ public class Order {
           prompt: 'Mengapa sebaiknya entity tidak dikembalikan langsung sebagai response API?',
           multiple: true,
           options: [
-            { text: 'Field internal bisa bocor dan perubahan skema mengubah kontrak publik.', correct: true },
+            { text: 'Field internal bisa bocor dan perubahan schema mengubah kontrak publik.', correct: true },
             { text: 'Serialisasi JSON bisa memicu lazy loading relasi dan query tak terduga.', correct: true },
             { text: 'Entity tidak bisa diubah menjadi JSON sama sekali.', why: 'Bisa, dan justru itu sumber masalahnya.' },
             { text: 'Spring melarangnya dan aplikasi gagal start.', why: 'Tidak dilarang; ini keputusan desain.' },
           ],
-          explanation: 'Petakan entity ke DTO response secara eksplisit. Kontrak publik tetap stabil walau skema database berubah.',
+          explanation: 'Petakan entity ke DTO response secara eksplisit. Kontrak publik tetap stabil walau schema database berubah.',
         },
       ],
     },
@@ -135,15 +135,15 @@ public class Order {
             { text: 'Aplikasi crash.', why: 'Exception diteruskan ke pemanggil; transaksinya di-commit.' },
             { text: 'Spring mengulang transaksi otomatis.', why: 'Spring tidak melakukan retry transaksi secara default.' },
           ],
-          explanation: 'Ini mengejutkan banyak orang. Gunakan unchecked exception untuk kegagalan bisnis, atau tambahkan `@Transactional(rollbackFor = Exception.class)` bila perlu.',
+          explanation: 'Secara default, checked exception tidak memicu rollback. Gunakan unchecked exception untuk kegagalan bisnis, atau tambahkan `@Transactional(rollbackFor = Exception.class)` bila perlu.',
         },
         {
           kind: 'choice',
           id: 'self-invocation',
-          prompt: '`OrderService.placeAll()` (tanpa anotasi) memanggil `this.place()` yang diberi `@Transactional`. Apakah `place()` berjalan dalam transaksi?',
+          prompt: '`OrderService.placeAll()` (tanpa annotation) memanggil `this.place()` yang diberi `@Transactional`. Apakah `place()` berjalan dalam transaksi?',
           options: [
             { text: 'Tidak, panggilan lewat `this` tidak melewati proxy transaksi Spring.', correct: true },
-            { text: 'Ya, anotasi selalu berlaku di mana pun method dipanggil.', why: 'Dengan proxy berbasis Spring AOP (default), hanya panggilan dari luar bean yang dicegat.' },
+            { text: 'Ya, annotation selalu berlaku di mana pun method dipanggil.', why: 'Dengan proxy berbasis Spring AOP (default), hanya panggilan dari luar bean yang dicegat.' },
             { text: 'Ya, tetapi hanya untuk method `public`.', why: 'Visibility tidak menolong; masalahnya panggilan internal.' },
             { text: 'Kompilasi gagal.', why: 'Kode tetap terkompilasi; bug-nya muncul saat runtime.' },
           ],
@@ -193,8 +193,8 @@ class OrderService {
     },
     {
       slug: 'schema-migration',
-      title: 'Migrasi skema',
-      summary: 'Perubahan skema dicatat sebagai skrip berversi yang dijalankan berurutan, sehingga setiap database bisa dibawa ke versi yang sama.',
+      title: 'Migrasi schema',
+      summary: 'Perubahan schema dicatat sebagai skrip berversi yang dijalankan berurutan, sehingga setiap database bisa dibawa ke versi yang sama.',
       minutes: 35,
       objectives: [
         'Menulis migrasi Flyway dengan konvensi penamaan `V{versi}__{deskripsi}.sql`.',
@@ -204,7 +204,7 @@ class OrderService {
       keyPoints: [
         'Flyway mencatat migrasi yang sudah dijalankan di tabel `flyway_schema_history`.',
         'Migrasi yang sudah dijalankan tidak boleh diubah; buat migrasi baru untuk perubahan berikutnya.',
-        '`spring.jpa.hibernate.ddl-auto=validate` memastikan entity cocok dengan skema tanpa mengubahnya.',
+        '`spring.jpa.hibernate.ddl-auto=validate` memastikan entity cocok dengan schema tanpa mengubahnya.',
         'Perubahan besar (rename kolom, NOT NULL) sering perlu beberapa langkah agar versi aplikasi lama dan baru bisa berjalan berdampingan.',
       ],
       practice: {
@@ -237,21 +237,21 @@ class OrderService {
         {
           kind: 'choice',
           id: 'ddl-auto',
-          prompt: 'Nilai `spring.jpa.hibernate.ddl-auto` yang tepat ketika skema dikelola Flyway adalah…',
+          prompt: 'Nilai `spring.jpa.hibernate.ddl-auto` yang tepat ketika schema dikelola Flyway adalah…',
           options: [
             { text: '`validate` (atau `none`)', correct: true },
-            { text: '`update`', why: 'Hibernate akan mengubah skema diam-diam tanpa riwayat dan tidak pernah menghapus kolom.' },
-            { text: '`create-drop`', why: 'Menghapus seluruh skema saat aplikasi berhenti. Hanya untuk eksperimen.' },
-            { text: '`create`', why: 'Membuat ulang skema dan menghapus data setiap start.' },
+            { text: '`update`', why: 'Hibernate akan mengubah schema diam-diam tanpa riwayat dan tidak pernah menghapus kolom.' },
+            { text: '`create-drop`', why: 'Menghapus seluruh schema saat aplikasi berhenti. Hanya untuk eksperimen.' },
+            { text: '`create`', why: 'Membuat ulang schema dan menghapus data setiap start.' },
           ],
-          explanation: 'Biarkan Flyway menjadi satu-satunya pemilik skema. `validate` membuat aplikasi gagal start jika mapping entity tidak cocok dengan tabel.',
+          explanation: 'Kelola semua perubahan schema melalui Flyway. `validate` membuat aplikasi gagal start jika mapping entity tidak cocok dengan tabel.',
         },
       ],
     },
     {
       slug: 'relations-query-cost',
-      title: 'Relasi & biaya query',
-      summary: 'Relasi object bisa memicu query tambahan tanpa terlihat. Periksa SQL yang dihasilkan dan pilih strategi fetch dengan sengaja.',
+      title: 'Relasi & query performance',
+      summary: 'Relasi object bisa memicu query tambahan tanpa terlihat. Periksa SQL yang dihasilkan dan pilih strategi fetch sesuai data yang dibutuhkan.',
       minutes: 40,
       objectives: [
         'Memetakan relasi `@OneToMany` / `@ManyToOne`.',
@@ -280,7 +280,7 @@ class OrderService {
             { text: 'Cartesian product', why: 'Itu terjadi saat join beberapa koleksi sekaligus, menghasilkan baris berlipat.' },
             { text: 'Dirty read', why: 'Dirty read terkait isolasi transaksi, bukan jumlah query.' },
           ],
-          explanation: '1 query untuk daftar order + 20 query lazy loading item = 21. Dengan data besar, ini cepat menjadi lambat.',
+          explanation: '1 query untuk daftar order + 20 query lazy loading item = 21. Jumlah query bertambah seiring jumlah order dan bisa memperlambat response.',
         },
         {
           kind: 'code',
@@ -295,7 +295,7 @@ class OrderService {
   List<Order> findAllWithItems();
 }`,
           checks: [
-            { label: 'Memakai anotasi `@Query`', pattern: r`@Query\s*\(`, hint: 'Tambahkan `@Query("...")` di atas method.' },
+            { label: 'Memakai annotation `@Query`', pattern: r`@Query\s*\(`, hint: 'Tambahkan `@Query("...")` di atas method.' },
             { label: 'JPQL memakai `join fetch o.items`', pattern: r`join\s+fetch\s+\w+\s*\.\s*items`, flags: 'im', hint: 'Contoh: `select distinct o from Order o join fetch o.items`.' },
             { label: 'Method `List<Order> findAllWithItems()`', pattern: r`List\s*<\s*Order\s*>\s+findAllWithItems\s*\(\s*\)`, hint: 'Deklarasikan `List<Order> findAllWithItems();`.' },
           ],

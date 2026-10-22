@@ -46,7 +46,7 @@ export function ContainerLab() {
           ) : (
             <p role="alert" className="rounded-xl bg-warning-soft px-4 py-3 text-sm text-warning">Isi nama image tanpa spasi atau karakter shell, dan port host 1024–65535.</p>
           )}
-          <div className="flex flex-wrap items-center gap-2 font-mono text-sm" aria-label="Pemetaan port">
+          <div className="flex flex-wrap items-center gap-2 font-mono text-sm" aria-label="Port mapping">
             <span className="rounded-lg border border-border bg-subtle px-3 py-1.5">127.0.0.1:{port || '?'}</span>
             <ArrowRight className="size-4 text-fg-subtle" aria-hidden="true" />
             <span className="rounded-lg border border-border bg-subtle px-3 py-1.5">container:8080</span>

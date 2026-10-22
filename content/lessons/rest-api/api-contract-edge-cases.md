@@ -9,7 +9,7 @@ Kontrak API adalah janji kepada klien. Ia mencakup:
 
 Dokumentasi yang hanya berisi contoh sukses membuat klien menebak-nebak perilaku saat gagal. Tebakan yang salah berujung pada bug di sisi klien.
 
-## Daftar skenario tepi untuk POST /orders
+## Daftar edge cases untuk POST /orders
 
 | Skenario | Request | Hasil yang diharapkan |
 | --- | --- | --- |
@@ -45,7 +45,7 @@ curl -i $BASE/orders/999
 ```
 
 > [!TIP] Dari curl ke test otomatis
-> Setiap baris di koleksi ini kelak menjadi test HTTP dengan MockMvc di modul Testing. Dokumentasi yang bisa dijalankan tidak akan basi diam-diam.
+> Setiap baris di koleksi ini kelak menjadi test HTTP dengan MockMvc di modul Testing. Jalankan test itu di CI agar perubahan kontrak segera terlihat.
 
 ## Breaking change
 

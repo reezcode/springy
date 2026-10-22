@@ -24,7 +24,7 @@ public class FakeGateway implements PaymentGateway {
 }
 ```
 
-Anotasi `@Override` meminta compiler memastikan method benar-benar mengimplementasikan kontrak. Jika nama atau parameternya salah ketik, kompilasi gagal, bukan bug diam-diam.
+Annotation `@Override` meminta compiler memastikan method benar-benar mengimplementasikan kontrak. Jika nama atau parameternya tidak sesuai, compiler akan memberi error.
 
 ## Polymorphism
 
@@ -60,7 +60,7 @@ public final class Checkout {
 
 `Checkout` tidak tahu apakah ia memakai bank sungguhan atau fake. Di aplikasi kita memberikan `BankGateway`; di unit test kita memberikan `FakeGateway` lalu memeriksa `lastAmount`.
 
-> [!NOTE] Ini cikal bakal dependency injection
+> [!NOTE] Dependency injection lewat constructor
 > Memberikan dependency lewat constructor adalah inti dari dependency injection. Di modul Spring Boot, container Spring yang akan membuat dan memasangkan object-object ini untukmu.
 
 ## Kapan inheritance masuk akal?

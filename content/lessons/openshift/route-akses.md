@@ -59,7 +59,7 @@ Edge paling sederhana dan cukup untuk latihan. Untuk lingkungan yang mensyaratka
 | 503 "Application is not available" | Tidak ada pod siap di belakang Service | `oc get pods`, readiness probe, `oc describe svc order` |
 | 503 walau pod Running | `targetPort` Route tidak cocok dengan port Service | `oc get route order -o yaml` |
 | Service tanpa endpoint | Selector Service tidak cocok dengan label pod | `oc get endpoints order`, `oc get pods --show-labels` |
-| Timeout | Aplikasi lambat; timeout router default 30 detik | Log aplikasi, anotasi `haproxy.router.openshift.io/timeout` |
+| Timeout | Aplikasi lambat; timeout router default 30 detik | Log aplikasi, annotation `haproxy.router.openshift.io/timeout` |
 
 ```shell
 oc get endpoints order      # harus berisi IP pod

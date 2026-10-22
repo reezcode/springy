@@ -100,7 +100,12 @@ function stripHashComment(line: string) {
   return line;
 }
 
+export const MAX_CODE_LENGTH = 50_000;
+
 export function gradeCode(exercise: CodeExercise, source: string): GradeResult {
+  if (source.length > MAX_CODE_LENGTH) {
+    return { passed: false, checks: exercise.checks.map(c => ({ label: c.label, ok: false, hint: "Jawaban terlalu panjang. Batasi kode hingga 50.000 karakter." })) };
+  }
   const code = stripComments(source, exercise.language);
   const checks = exercise.checks.map((check) => {
     let found = false;

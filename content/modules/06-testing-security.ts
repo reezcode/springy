@@ -4,10 +4,10 @@ const r = String.raw;
 
 const testingSecurity: ModuleInput = {
   slug: 'testing-keamanan',
-  title: 'Testing & keamanan',
-  subtitle: 'Buktikan perilaku sebelum memecah service.',
+  title: 'Testing & security',
+  subtitle: 'Tulis test dan lindungi akses ke API.',
   description:
-    'Unit test untuk aturan bisnis, integration test dengan database sungguhan lewat Testcontainers, melindungi API sebagai OAuth 2.0 resource server dengan JWT, dan menguji jalur gagal seperti 400, 401, 403, dan 404.',
+    'Mulai dengan unit test untuk aturan bisnis, lalu uji akses database memakai Testcontainers. Konfigurasikan API sebagai OAuth 2.0 resource server dengan JWT dan periksa response untuk input tidak valid, token yang salah, serta resource yang tidak ditemukan.',
   category: 'Spring Boot',
   hours: '7–10',
   tint: 'peach',
@@ -16,7 +16,7 @@ const testingSecurity: ModuleInput = {
     {
       slug: 'unit-test-bisnis',
       title: 'Unit test aturan bisnis',
-      summary: 'Uji service dan domain dengan dependency fake, tanpa memuat Spring. Test yang cepat dan deterministik mendorong perubahan berani.',
+      summary: 'Uji service dan domain dengan dependency fake, tanpa memuat Spring. Test harus memberi hasil yang sama setiap kali dijalankan.',
       minutes: 40,
       objectives: [
         'Menulis test JUnit 5 dengan pola Arrange–Act–Assert.',
@@ -131,8 +131,8 @@ class OrderRepositoryTest {
   static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:16");
 }`,
           checks: [
-            { label: 'Anotasi `@Container`', pattern: r`@Container\b`, hint: 'Tambahkan `@Container` agar Testcontainers mengelola siklus hidupnya.' },
-            { label: 'Anotasi `@ServiceConnection`', pattern: r`@ServiceConnection\b`, hint: 'Tambahkan `@ServiceConnection` agar datasource diisi otomatis.' },
+            { label: 'Annotation `@Container`', pattern: r`@Container\b`, hint: 'Tambahkan `@Container` agar Testcontainers mengelola siklus hidupnya.' },
+            { label: 'Annotation `@ServiceConnection`', pattern: r`@ServiceConnection\b`, hint: 'Tambahkan `@ServiceConnection` agar datasource diisi otomatis.' },
             { label: 'Field `static PostgreSQLContainer`', pattern: r`static\s+(final\s+)?PostgreSQLContainer\s*<\s*\??\s*>\s+\w+`, hint: 'Deklarasikan `static PostgreSQLContainer<?> postgres = ...`. Static agar dipakai bersama semua test di class.' },
             { label: 'Image `postgres:16`', pattern: r`new\s+PostgreSQLContainer\s*<\s*>\s*\(\s*"postgres:16`, hint: 'Gunakan `new PostgreSQLContainer<>("postgres:16")`.' },
           ],
@@ -230,8 +230,8 @@ SecurityFilterChain api(HttpSecurity http) throws Exception {
     },
     {
       slug: 'test-jalur-gagal',
-      title: 'Test jalur gagal',
-      summary: 'Kontrak yang paling sering rusak adalah perilaku saat gagal. Uji 400, 401, 403, dan 404 di level HTTP.',
+      title: 'Test untuk skenario gagal',
+      summary: 'Uji response 400, 401, 403, dan 404 agar perubahan kode tidak mengubah validasi atau aturan akses tanpa disadari.',
       minutes: 40,
       objectives: [
         'Menulis test HTTP dengan MockMvc dan `@WebMvcTest`.',
@@ -239,7 +239,7 @@ SecurityFilterChain api(HttpSecurity http) throws Exception {
         'Memastikan build gagal ketika kontrak error berubah.',
       ],
       keyPoints: [
-        '`@WebMvcTest` memuat lapisan web saja; service di-mock dengan `@MockitoBean`.',
+        '`@WebMvcTest` memuat web layer saja; service di-mock dengan `@MockitoBean`.',
         '`SecurityMockMvcRequestPostProcessors.jwt()` membuat request terautentikasi tanpa authorization server sungguhan.',
         'Periksa status, Content-Type, dan field penting body error.',
         'Coverage tinggi tanpa skenario gagal memberi rasa aman palsu.',
@@ -284,7 +284,7 @@ void rejectsAnonymous() throws Exception {
             { text: 'Build akan lebih lambat.', why: 'Masalahnya kualitas perlindungan, bukan kecepatan.' },
             { text: 'Spring akan menolak start.', why: 'Aplikasi tetap start; bug baru terlihat oleh klien.' },
           ],
-          explanation: 'Jalur gagal adalah bagian kontrak. Test untuk setiap status penting menjaga perilaku itu tetap stabil.',
+          explanation: 'Skenario gagal adalah bagian kontrak. Test untuk setiap status penting menjaga perilaku itu tetap stabil.',
         },
       ],
     },

@@ -1,6 +1,6 @@
 ## Tujuan capstone
 
-Capstone menggabungkan semua yang sudah kamu pelajari menjadi satu sistem kecil yang berjalan. Hasil akhirnya bukan hanya kode, tetapi **bukti**: desain tertulis, test untuk jalur gagal, image yang bisa dijalankan, dan dokumentasi yang bisa diikuti orang lain.
+Capstone menggabungkan semua yang sudah kamu pelajari menjadi satu sistem kecil yang berjalan. Siapkan desain tertulis, test untuk skenario gagal, container image, dan README agar orang lain bisa mencoba hasilnya.
 
 ## Mini Commerce
 
@@ -43,7 +43,7 @@ Lalu tulis variasinya: stok habis, Inventory tidak merespons, klien mengirim ula
 
 ## Langkah 3: kontrak
 
-Tulis kontrak lengkap untuk setiap interaksi, termasuk jalur gagal:
+Tulis kontrak lengkap untuk setiap interaksi, termasuk skenario gagal:
 
 ```http title="POST /orders"
 POST /orders

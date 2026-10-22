@@ -3,9 +3,9 @@ import type { ModuleInput } from '../types.ts';
 const capstone: ModuleInput = {
   slug: 'capstone',
   title: 'Capstone: Mini Commerce',
-  subtitle: 'Satukan konsep menjadi bukti kerja.',
+  subtitle: 'Buat Mini Commerce dari desain sampai deploy.',
   description:
-    'Proyek akhir yang menggabungkan seluruh jalur: rancang batas Order, Inventory, dan Notification; bangun dan uji jalur gagalnya; rilis sebagai container; lalu tinjau dan serahkan dengan dokumentasi yang bisa diulang orang lain.',
+    'Bangun Order, Inventory, dan Notification dengan konsep dari modul sebelumnya. Tulis kontraknya, uji skenario gagal, buat container image, lalu lengkapi README agar orang lain bisa menjalankan dan menguji project-mu.',
   category: 'Proyek akhir',
   hours: '10–16',
   tint: 'lavender',
@@ -14,21 +14,21 @@ const capstone: ModuleInput = {
     {
       slug: 'rancang-dokumentasi',
       title: 'Rancang & dokumentasikan',
-      summary: 'Sebelum menulis kode, tetapkan batas service, kontrak API dan event, serta kepemilikan data. Desain yang tertulis bisa ditinjau dan diperdebatkan.',
+      summary: 'Sebelum menulis kode, tetapkan service boundary, kontrak API dan event, serta data ownership. Dokumen ini akan menjadi acuan saat implementasi dan review.',
       minutes: 60,
       objectives: [
         'Menyusun diagram konteks dan alur utama Mini Commerce.',
-        'Menulis kontrak API dan skema event.',
+        'Menulis kontrak API dan schema event.',
         'Mencatat keputusan arsitektur dalam ADR.',
       ],
       keyPoints: [
         'Mulai kecil: Order, Inventory, dan satu worker Notification sudah cukup.',
         'Setiap data punya satu pemilik; tulis siapa yang boleh membaca dan menulis.',
-        'Kontrak mencakup jalur gagal, bukan hanya happy path.',
+        'Kontrak mencakup skenario gagal, bukan hanya happy path.',
         'ADR mencatat konteks dan konsekuensi, bukan hanya keputusan.',
       ],
       practice: {
-        task: 'Tulis diagram alur pembuatan order, kontrak `POST /orders` dan `POST /reservations`, skema event `OrderConfirmed`, dan tabel ownership data.',
+        task: 'Tulis diagram alur pembuatan order, kontrak `POST /orders` dan `POST /reservations`, schema event `OrderConfirmed`, dan tabel ownership data.',
         proof: 'Orang lain dapat menjelaskan alur dan kegagalannya hanya dari dokumen, tanpa membaca kode.',
       },
       refs: [
@@ -41,12 +41,12 @@ const capstone: ModuleInput = {
           id: 'scope',
           prompt: 'Mana cakupan capstone yang paling realistis untuk membuktikan pemahaman?',
           options: [
-            { text: 'Order dan Inventory sebagai service HTTP, Notification sebagai consumer event, satu alur end-to-end dengan jalur gagal.', correct: true },
-            { text: 'Sepuluh service termasuk katalog, rekomendasi, dan analitik.', why: 'Lebar tanpa kedalaman; jalur gagal tidak sempat dibuktikan.' },
+            { text: 'Order dan Inventory sebagai service HTTP, Notification sebagai consumer event, satu alur end-to-end dengan skenario gagal.', correct: true },
+            { text: 'Sepuluh service termasuk katalog, rekomendasi, dan analitik.', why: 'Lebar tanpa kedalaman; skenario gagal tidak sempat dibuktikan.' },
             { text: 'Satu service CRUD tanpa komunikasi antarservice.', why: 'Tidak menguji konsep microservices dan resilience.' },
             { text: 'Hanya diagram tanpa kode.', why: 'Capstone menuntut bukti yang berjalan.' },
           ],
-          explanation: 'Kedalaman lebih bernilai daripada jumlah service. Satu alur yang tahan gagal membuktikan lebih banyak daripada banyak service yang hanya bekerja di happy path.',
+          explanation: 'Mulai dengan satu alur end-to-end yang mencakup skenario berhasil dan gagal. Cakupan ini memberi waktu untuk menguji komunikasi antarservice, retry, dan pengiriman event.',
         },
         {
           kind: 'order',
@@ -54,8 +54,8 @@ const capstone: ModuleInput = {
           prompt: 'Urutkan aktivitas desain sebelum menulis kode.',
           items: [
             'Tulis alur bisnis utama dari sudut pandang pengguna.',
-            'Tentukan batas service dan pemilik setiap data.',
-            'Tulis kontrak API dan event, termasuk jalur gagal.',
+            'Tentukan service boundary dan pemilik setiap data.',
+            'Tulis kontrak API dan event, termasuk skenario gagal.',
             'Catat keputusan dan trade-off dalam ADR.',
           ],
           explanation: 'Alur bisnis memandu batas, batas menentukan kontrak, dan ADR merekam alasan di balik semuanya.',
@@ -65,7 +65,7 @@ const capstone: ModuleInput = {
     {
       slug: 'bangun-uji-kegagalan',
       title: 'Bangun & uji kegagalan',
-      summary: 'Gabungkan persistensi, keamanan, dan komunikasi. Lalu matikan dependency dan kirim ulang pesan untuk membuktikan desainmu bertahan.',
+      summary: 'Hubungkan database dan service, atur akses API, lalu uji timeout, retry, dan pengiriman event duplikat.',
       minutes: 120,
       objectives: [
         'Mengimplementasikan alur order lintas service dengan timeout dan idempotency.',
@@ -112,7 +112,7 @@ const capstone: ModuleInput = {
             { text: 'Order dianggap sukses dan stok diasumsikan tersedia.', why: 'Fallback tidak boleh berpura-pura sukses untuk operasi penting.' },
             { text: 'Thread Order menunggu sampai Inventory hidup kembali.', why: 'Inilah yang dicegah oleh timeout dan circuit breaker.' },
           ],
-          explanation: 'Gagal cepat dan jujur. Setelah circuit breaker terbuka, kegagalan bahkan lebih cepat karena Inventory tidak lagi dipanggil.',
+          explanation: 'Kembalikan error segera setelah batas timeout tercapai. Saat circuit breaker berstatus OPEN, request ditolak tanpa memanggil Inventory.',
         },
       ],
     },
@@ -129,7 +129,7 @@ const capstone: ModuleInput = {
       keyPoints: [
         'Test berjalan sebelum image dibangun; image yang gagal test tidak boleh dirilis.',
         'Tag rilis yang jelas (versi atau commit SHA), bukan `latest`.',
-        'Konfigurasi dan rahasia disuntikkan saat deploy, tidak dibakar ke image.',
+        'Masukkan konfigurasi dan secret saat deploy melalui environment variable atau fasilitas platform.',
         'Rollback aplikasi tidak otomatis membalik migrasi database.',
       ],
       practice: {
@@ -161,12 +161,12 @@ const capstone: ModuleInput = {
           id: 'config-in-image',
           prompt: 'Tim ingin password database produksi tersedia di aplikasi. Cara yang tepat adalah…',
           options: [
-            { text: 'Suntikkan dari Secret platform sebagai environment variable saat deploy.', correct: true },
-            { text: 'Tulis di `application-prod.yml` di dalam image.', why: 'Rahasia ikut tersebar ke semua yang bisa menarik image dan masuk riwayat Git.' },
-            { text: 'Bangun image terpisah khusus produksi yang berisi password.', why: 'Melanggar build once, deploy many, dan tetap menyimpan rahasia di image.' },
+            { text: 'Inject dari Secret platform sebagai environment variable saat deploy.', correct: true },
+            { text: 'Tulis di `application-prod.yml` di dalam image.', why: 'Secret ikut tersebar ke semua yang bisa menarik image dan masuk riwayat Git.' },
+            { text: 'Bangun image terpisah khusus produksi yang berisi password.', why: 'Melanggar build once, deploy many, dan tetap menyimpan secret di image.' },
             { text: 'Kirim lewat argumen build `--build-arg`.', why: 'Build arg bisa terlihat di riwayat image.' },
           ],
-          explanation: 'Image harus sama di semua lingkungan dan bebas rahasia. Perbedaan lingkungan masuk lewat ConfigMap, Secret, atau environment variable.',
+          explanation: 'Image harus sama di semua lingkungan dan bebas secret. Perbedaan lingkungan masuk lewat ConfigMap, Secret, atau environment variable.',
         },
       ],
     },
@@ -182,7 +182,7 @@ const capstone: ModuleInput = {
       ],
       keyPoints: [
         'README menjawab: cara run, test, deploy, mengamati, dan memulihkan.',
-        'Tulis keterbatasan secara jujur; itu tanda pemahaman, bukan kelemahan.',
+        'Catat keterbatasan yang diketahui, dampaknya, dan rencana penanganannya.',
         'Uji README di lingkungan bersih oleh orang lain.',
         'Checklist selesai berarti ada bukti praktik, bukan hanya sudah membaca.',
       ],
@@ -216,9 +216,9 @@ const capstone: ModuleInput = {
             { text: 'Catat sebagai keterbatasan yang diketahui beserta dampak dan rencana perbaikannya.', correct: true },
             { text: 'Sembunyikan agar proyek terlihat lengkap.', why: 'Keterbatasan tersembunyi akan ditemukan di produksi pada saat terburuk.' },
             { text: 'Hapus fitur outbox.', why: 'Menghapus solusi tidak menghilangkan masalah dual write.' },
-            { text: 'Anggap tidak penting karena hanya latihan.', why: 'Latihan adalah tempat terbaik untuk membiasakan dokumentasi yang jujur.' },
+            { text: 'Anggap tidak penting karena hanya latihan.', why: 'Keterbatasan tetap perlu dicatat agar orang yang mencoba project tahu kondisi yang belum didukung.' },
           ],
-          explanation: 'Keterbatasan yang tertulis bisa direncanakan; yang tersembunyi menjadi insiden.',
+          explanation: 'Dokumentasi membantu tim mengetahui kondisi yang belum didukung dan menyiapkan penanganannya.',
         },
       ],
     },

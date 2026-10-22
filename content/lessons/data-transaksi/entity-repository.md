@@ -1,6 +1,6 @@
 ## Dari object ke tabel
 
-**JPA** (Jakarta Persistence API) adalah spesifikasi untuk memetakan object Java ke tabel relasional. **Hibernate** adalah implementasi yang dipakai Spring Boot secara default. **Spring Data JPA** menambahkan lapisan repository di atasnya sehingga kamu jarang menulis kode akses data berulang.
+**JPA** (Jakarta Persistence API) adalah spesifikasi untuk memetakan object Java ke tabel relasional. **Hibernate** adalah implementasi yang dipakai Spring Boot secara default. **Spring Data JPA** menambahkan repository layer di atasnya sehingga kamu jarang menulis kode akses data berulang.
 
 Tambahkan dependency `spring-boot-starter-data-jpa` dan driver database, misalnya `org.postgresql:postgresql`.
 
@@ -8,7 +8,7 @@ Tambahkan dependency `spring-boot-starter-data-jpa` dan driver database, misalny
 
 ```java title="Order.java"
 @Entity
-@Table(name = "orders")          // "order" adalah kata kunci SQL
+@Table(name = "orders")          // "order" adalah SQL keyword
 public class Order {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +41,7 @@ public class Order {
 }
 ```
 
-| Anotasi | Fungsi |
+| Annotation | Fungsi |
 | --- | --- |
 | `@Entity` | Class dipetakan ke tabel |
 | `@Table(name)` | Nama tabel jika berbeda dari nama class |
@@ -65,7 +65,7 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 }
 ```
 
-Spring Data membuat implementasinya saat start. `JpaRepository` sudah menyediakan `save`, `findById`, `findAll`, `deleteById`, paging, dan sorting. Query method diturunkan dari nama method: `findBy` + nama property + kata kunci seperti `And`, `OrderBy`, `Between`, `In`.
+Spring Data membuat implementasinya saat start. `JpaRepository` sudah menyediakan `save`, `findById`, `findAll`, `deleteById`, paging, dan sorting. Query method diturunkan dari nama method: `findBy` + nama property + keyword seperti `And`, `OrderBy`, `Between`, `In`.
 
 Untuk query yang lebih rumit, gunakan JPQL dengan `@Query`:
 

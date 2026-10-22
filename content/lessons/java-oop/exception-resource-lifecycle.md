@@ -44,7 +44,7 @@ try (var in = Files.newInputStream(source);
 }
 ```
 
-## Menangani dengan sengaja
+## Memilih cara menangani exception
 
 Ada tiga pilihan yang masuk akal ketika menangkap exception:
 
@@ -60,7 +60,7 @@ try {
 }
 ```
 
-Perhatikan argumen kedua, `e`. Itu adalah **cause**. Tanpanya, stack trace asli hilang dan debugging jadi tebak-tebakan.
+Perhatikan argumen kedua, `e`. Itu adalah **cause**. Tanpanya, informasi penyebab asli hilang dari exception baru dan error lebih sulit ditelusuri.
 
 > [!WARNING] Jangan menelan exception
 > `catch (Exception e) { }` membuat kegagalan lenyap tanpa jejak. Program lanjut dalam keadaan yang salah dan bug muncul jauh dari penyebabnya. Minimal, log dengan konteks lalu lempar ulang.

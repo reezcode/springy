@@ -1,10 +1,10 @@
-## Batas berdasarkan kemampuan bisnis
+## Batas berdasarkan business capability
 
-Cara paling umum yang keliru memecah sistem adalah berdasarkan lapisan teknis (service "database", service "UI") atau berdasarkan tabel (service `customer`, service `address`). Keduanya menghasilkan service yang harus selalu berubah bersama.
+Salah satu kekeliruan saat memecah aplikasi adalah membuat service berdasarkan technical layer (service "database", service "UI") atau berdasarkan tabel (service `customer`, service `address`). Keduanya menghasilkan service yang harus selalu berubah bersama.
 
-Batas yang lebih tahan lama mengikuti **kemampuan bisnis**: hal yang dilakukan bisnis dan relatif stabil walau teknologinya berubah.
+Gunakan **business capability** sebagai acuan service boundary: hal yang dilakukan bisnis dan relatif stabil walau teknologinya berubah.
 
-| Kemampuan bisnis | Service | Memiliki data |
+| Business capability | Service | Memiliki data |
 | --- | --- | --- |
 | Menerima pesanan | Order | order, item, status, idempotency record |
 | Mengelola stok | Inventory | stok, reservasi |
@@ -26,7 +26,7 @@ Prinsip terpenting: **setiap data punya tepat satu service pemilik.** Hanya pemi
 ```
 
 > [!WARNING] Database bersama = kontrak tersembunyi
-> Jika Order men-query tabel `stock` milik Inventory secara langsung, skema tabel itu menjadi kontrak publik yang tidak terdokumentasi. Inventory tidak bisa me-rename kolom atau memecah tabel tanpa merusak Order, dan deployment independen pun hilang.
+> Jika Order men-query tabel `stock` milik Inventory secara langsung, schema tabel itu menjadi kontrak publik yang tidak terdokumentasi. Inventory tidak bisa me-rename kolom atau memecah tabel tanpa merusak Order, dan deployment independen pun hilang.
 
 ## Bounded context
 

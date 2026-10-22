@@ -1,6 +1,6 @@
 ## Liskov Substitution Principle
 
-LSP, dirumuskan Barbara Liskov, menyatakan bahwa **object dari subtipe harus bisa menggantikan object dari tipe induknya tanpa mengubah kebenaran program**. Dengan kata lain, pemanggil yang menulis kode untuk sebuah kontrak tidak boleh dikejutkan oleh implementasi tertentu.
+LSP, dirumuskan Barbara Liskov, menyatakan bahwa **object dari subtipe harus bisa menggantikan object dari tipe induknya dengan tetap memenuhi perilaku yang dijanjikan kontraknya**. Dengan kata lain, pemanggil yang menulis kode untuk sebuah kontrak tidak boleh dikejutkan oleh implementasi tertentu.
 
 Implementasi melanggar LSP ketika ia:
 
@@ -60,4 +60,4 @@ Layanan laporan cukup meminta `OrderReader`. Layanan pembuatan order meminta ked
 | Pemanggil memakai `instanceof` untuk tahu implementasi mana | LSP | Implementasi harus bisa saling menggantikan |
 
 > [!TIP] Bonus untuk test
-> Interface kecil membuat fake sangat murah. `OrderReader` cukup diimplementasikan dengan lambda: `OrderReader reader = id -> Optional.of(sampleOrder);`.
+> Interface kecil membuat fake lebih mudah ditulis. `OrderReader` cukup diimplementasikan dengan lambda: `OrderReader reader = id -> Optional.of(sampleOrder);`.

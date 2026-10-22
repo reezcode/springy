@@ -1,0 +1,185 @@
+{
+  "title": "Testing & security",
+  "subtitle": "Test behavior and protect API access.",
+  "description": "Write unit tests for business rules and integration tests with Testcontainers. Configure JWT resource-server security and test invalid input, insufficient permissions, and missing resources.",
+  "lessons": [
+    {
+      "title": "Unit tests for business rules",
+      "summary": "Test services and domain objects with fakes without loading Spring. Keep results repeatable.",
+      "objectives": [
+        "Assert a domain exception.",
+        "Structure a test with Arrange–Act–Assert.",
+        "Inject time so date-based tests are deterministic."
+      ],
+      "keyPoints": [
+        "Test observable behavior rather than every internal call.",
+        "Use fakes and stubs at dependency boundaries.",
+        "Clock.fixed makes date-dependent logic repeatable."
+      ],
+      "practice": [
+        "Test discount behavior and negative order totals without Spring.",
+        "The tests run quickly and report the same result on every date."
+      ],
+      "exercises": [
+        {
+          "prompt": "Complete a test asserting that an Order with a negative total throws IllegalArgumentException.",
+          "checks": [
+            "Call assertThrows with IllegalArgumentException.class",
+            "Create new Order(...) inside the lambda",
+            "Use a negative amount"
+          ],
+          "explanation": "assertThrows fails when the expected exception is not raised and also lets you inspect the returned exception."
+        },
+        {
+          "prompt": "Arrange these lines using Arrange–Act–Assert.",
+          "items": [
+            "`var gateway = new FakeGateway();`",
+            "`var checkout = new Checkout(new MemberDiscount(), gateway);`",
+            "`checkout.pay(100_000);`",
+            "`assertEquals(90_000, gateway.lastAmount);`"
+          ],
+          "explanation": "Arrange the objects, perform one action, then assert an observable result."
+        },
+        {
+          "prompt": "A service uses LocalDate.now() for a promotion. How should its test control the date?",
+          "options": [
+            "Inject Clock and use Clock.fixed in the test.",
+            "Only run the test on the promotion date.",
+            "Sleep until the date changes.",
+            "Remove the test."
+          ],
+          "explanation": "Time is a dependency. Passing a fixed Clock avoids tests that change with the calendar."
+        }
+      ]
+    },
+    {
+      "title": "Integration tests with a database",
+      "summary": "Testcontainers runs real PostgreSQL during tests so mappings, SQL, migrations, and constraints are tested together.",
+      "objectives": [
+        "Declare a PostgreSQL test container.",
+        "Connect it with ServiceConnection.",
+        "Explain differences between H2 and PostgreSQL."
+      ],
+      "keyPoints": [
+        "Static Container fields can share a database across a test class.",
+        "ServiceConnection supplies connection settings from the container.",
+        "Use the production database technology for dialect-specific behavior."
+      ],
+      "practice": [
+        "Run a repository integration test against a PostgreSQL container.",
+        "Flyway runs and the test exercises real PostgreSQL constraints and queries."
+      ],
+      "exercises": [
+        {
+          "prompt": "Complete the PostgreSQL container declaration so Spring Boot configures the test datasource automatically.",
+          "checks": [
+            "Add Container",
+            "Add ServiceConnection",
+            "Declare a static PostgreSQLContainer field",
+            "Use image postgres:16"
+          ],
+          "explanation": "ServiceConnection obtains datasource settings from the container. Replace.NONE keeps a JPA slice from substituting an embedded database."
+        },
+        {
+          "prompt": "Why use PostgreSQL through Testcontainers when production uses PostgreSQL rather than relying only on H2?",
+          "options": [
+            "SQL dialects, types, and constraints differ, so an H2 test can pass while production fails.",
+            "H2 cannot run SELECT queries.",
+            "Containers are always faster than H2.",
+            "Spring Boot does not support H2."
+          ],
+          "explanation": "PostgreSQL-specific features and migration syntax need to be exercised on PostgreSQL."
+        }
+      ]
+    },
+    {
+      "title": "Authentication, authorization & JWT",
+      "summary": "The API validates tokens from an authorization server and checks whether their scopes permit each operation.",
+      "objectives": [
+        "Distinguish authentication from authorization.",
+        "Configure a JWT resource server.",
+        "Verify signatures rather than only decoding payloads."
+      ],
+      "keyPoints": [
+        "401 indicates missing or invalid authentication; 403 indicates insufficient permission.",
+        "Spring maps scopes to authorities with a SCOPE_ prefix.",
+        "Base64 decoding does not prove who issued a token."
+      ],
+      "practice": [
+        "Require orders:write for POST /orders and verify tokens against your issuer.",
+        "Missing tokens return 401, insufficient scopes return 403, and allowed requests reach the controller."
+      ],
+      "exercises": [
+        {
+          "prompt": "A valid token with orders:read calls POST /orders, which requires orders:write. Which status is appropriate?",
+          "options": [
+            "403 Forbidden",
+            "401 Unauthorized",
+            "404 Not Found",
+            "400 Bad Request"
+          ],
+          "explanation": "The caller is authenticated but lacks permission for this operation, so the response is 403."
+        },
+        {
+          "prompt": "Configure SecurityFilterChain: POST /orders needs SCOPE_orders:write, all other requests require authentication, and JWT resource-server support is enabled.",
+          "checks": [
+            "Require SCOPE_orders:write for POST /orders",
+            "Use anyRequest().authenticated()",
+            "Do not use anyRequest().permitAll()",
+            "Enable oauth2ResourceServer with JWT"
+          ],
+          "explanation": "Rules are evaluated in order. Put specific rules before anyRequest and configure the expected issuer."
+        },
+        {
+          "prompt": "A filter decodes a JWT payload and trusts its sub claim without verifying the signature. What is wrong?",
+          "options": [
+            "Anyone can forge a payload and claim any user identity.",
+            "Nothing; JWT payloads are Base64.",
+            "Base64 is too slow.",
+            "It should use Base32 instead."
+          ],
+          "explanation": "Encoding is not verification. Use the resource server to verify the signature and expected token claims."
+        }
+      ]
+    },
+    {
+      "title": "Tests for failure scenarios",
+      "summary": "Check 400, 401, 403, and 404 responses so refactoring does not silently change validation or access rules.",
+      "objectives": [
+        "Write a MockMvc test for a missing token.",
+        "Test error responses as part of the API contract.",
+        "Evaluate test scenarios beyond coverage percentages."
+      ],
+      "keyPoints": [
+        "WebMvcTest loads a web slice and lets the service be mocked.",
+        "Test each meaningful status and security condition.",
+        "High line coverage does not prove error handling works."
+      ],
+      "practice": [
+        "Add HTTP tests for invalid input, missing credentials, insufficient scope, and a missing order.",
+        "CI fails if the relevant status or access behavior changes unexpectedly."
+      ],
+      "exercises": [
+        {
+          "prompt": "Complete a MockMvc test asserting that GET /orders/1 without a token returns 401.",
+          "checks": [
+            "Perform get(\"/orders/1\") with mvc",
+            "Expect status().isUnauthorized()",
+            "Do not supply a token"
+          ],
+          "explanation": "Add authenticated variants with appropriate scopes to test success and forbidden responses separately."
+        },
+        {
+          "prompt": "Coverage is 95%, but no tests assert 400, 401, 403, or 404. What is the risk?",
+          "options": [
+            "Security or error-mapping changes can pass without being detected.",
+            "None; 95% is enough.",
+            "The build necessarily runs slower.",
+            "Spring refuses to start."
+          ],
+          "explanation": "Coverage records executed lines. Explicit assertions for failure scenarios check the contract clients actually depend on."
+        }
+      ]
+    }
+  ]
+}

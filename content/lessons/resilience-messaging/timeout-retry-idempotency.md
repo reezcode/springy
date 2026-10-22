@@ -17,7 +17,7 @@ Retry tanpa batas dan tanpa jeda bisa memperparah keadaan: dependency yang keleb
 - **Batasi jumlah percobaan**, misalnya 3 termasuk percobaan pertama.
 - **Beri jeda yang bertambah** (exponential backoff): 200ms, 400ms, 800ms.
 - **Tambahkan jitter** (acak kecil) agar klien tidak mengulang di detik yang sama.
-- **Hormati batas waktu total**: retry tidak boleh membuat pengguna menunggu lebih lama dari timeout use case.
+- **Perhatikan batas waktu total**: retry tidak boleh membuat pengguna menunggu lebih lama dari timeout use case.
 
 Dengan Resilience4j di Spring Boot:
 
@@ -44,7 +44,7 @@ public ReservationResult reserve(String sku, int qty) {
 ```
 
 > [!NOTE] Butuh integrasi yang sesuai
-> Anotasi `@Retry` membutuhkan modul Resilience4j untuk Spring Boot (misalnya `resilience4j-spring-boot3`) dan dukungan AOP. Konfigurasi YAML saja tidak memasang apa pun. Cocokkan versi modul dengan versi Spring Boot-mu.
+> Annotation `@Retry` membutuhkan modul Resilience4j untuk Spring Boot (misalnya `resilience4j-spring-boot3`) dan dukungan AOP. Konfigurasi YAML saja tidak memasang apa pun. Cocokkan versi modul dengan versi Spring Boot-mu.
 
 ## Timeout bukan berarti gagal
 
@@ -70,7 +70,7 @@ Content-Type: application/json
 
 Server mencatat key bersama hasilnya:
 
-| Kondisi | Respons |
+| Kondisi | Response |
 | --- | --- |
 | Key baru | Proses, simpan key + hasil, kembalikan 201 |
 | Key sama, payload sama | Jangan proses lagi; kembalikan hasil yang tersimpan |
@@ -88,7 +88,7 @@ create table idempotency_keys (
 Penyimpanan key dan pembuatan order harus **dalam transaksi yang sama**, dan primary key mencegah dua request serentak dengan key sama sama-sama lolos.
 
 > [!WARNING] Map di memori tidak cukup
-> `ConcurrentHashMap` hanya hidup di satu instans. Dengan dua replica di belakang load balancer, retry bisa mendarat di replica lain yang tidak mengenal key tersebut. Key juga hilang saat restart. Simpan di database bersama, dan tetapkan masa retensi (misalnya 24 jam).
+> `ConcurrentHashMap` hanya hidup di satu instance. Dengan dua replica di belakang load balancer, retry bisa mendarat di replica lain yang tidak mengenal key tersebut. Key juga hilang saat restart. Simpan di database bersama, dan tetapkan masa retensi (misalnya 24 jam).
 
 > [!TIP] Coba di playground
-> Lab "REST API & idempotency" memperlihatkan respons 201, replay 200, dan konflik 409 untuk key yang sama.
+> Lab "REST API & idempotency" memperlihatkan response 201, replay 200, dan 409 Conflict untuk key yang sama.

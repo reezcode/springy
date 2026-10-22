@@ -1,0 +1,186 @@
+{
+  "title": "Data & transactions",
+  "subtitle": "Store data and define transaction boundaries with Spring Data JPA.",
+  "description": "Map entities to tables, create repositories, and group related database operations in transactions. Write schema migrations and inspect SQL to find N+1 queries.",
+  "lessons": [
+    {
+      "title": "Entity, ID & repository",
+      "summary": "JPA maps Java objects to relational tables. Spring Data creates repository implementations from interfaces.",
+      "objectives": [
+        "Map an entity and generated primary key.",
+        "Use derived query methods.",
+        "Keep persistence entities separate from API DTOs."
+      ],
+      "keyPoints": [
+        "Entity and Id define an entity and its primary key.",
+        "JPA entities need a no-argument constructor; protected is sufficient.",
+        "Use explicit DTOs so persistence changes do not alter the public API."
+      ],
+      "practice": [
+        "Map Order to orders and add a repository query by status.",
+        "The application persists orders and can retrieve them by status."
+      ],
+      "exercises": [
+        {
+          "prompt": "Make Order a JPA entity with an IDENTITY-generated primary key and a protected no-argument constructor.",
+          "checks": [
+            "Annotate the class with Entity",
+            "Annotate id with Id",
+            "Use GeneratedValue with GenerationType.IDENTITY",
+            "Add a protected no-argument constructor"
+          ],
+          "explanation": "Table(name = \"orders\") avoids the SQL keyword order. A protected constructor satisfies JPA without inviting ordinary callers to create an empty entity."
+        },
+        {
+          "prompt": "Complete the derived query method name to query WHERE status = ?.",
+          "hint": "Start with findBy and add the property name.",
+          "explanation": "Spring Data derives the condition from findByStatus and other supported query prefixes."
+        },
+        {
+          "prompt": "Why avoid returning an entity directly from an API?",
+          "options": [
+            "Internal fields may leak and schema changes may alter the public contract.",
+            "JSON serialization may trigger lazy loading and extra queries.",
+            "Entities cannot be serialized to JSON at all.",
+            "Spring forbids it and refuses to start."
+          ],
+          "explanation": "Map entities to DTOs explicitly to control the API contract and the data loaded for a response."
+        }
+      ]
+    },
+    {
+      "title": "Local transaction boundaries",
+      "summary": "Transactional groups database changes into a unit that commits or rolls back according to its rollback rules.",
+      "objectives": [
+        "Choose a service-level transaction boundary.",
+        "Explain default rollback behavior.",
+        "Recognize self-invocation that bypasses a proxy."
+      ],
+      "keyPoints": [
+        "RuntimeException and Error trigger rollback by default.",
+        "Checked exceptions require an explicit rollback rule when rollback is intended.",
+        "Calls through this do not pass through the Spring transaction proxy."
+      ],
+      "practice": [
+        "Load an order and confirm it in one transaction.",
+        "Dirty checking writes the state change on commit, and a failed operation does not leave partial data."
+      ],
+      "exercises": [
+        {
+          "prompt": "A Transactional method throws a checked IOException. What happens under the default rollback rules?",
+          "options": [
+            "The transaction commits; checked exceptions do not trigger rollback by default.",
+            "The transaction rolls back.",
+            "The application necessarily crashes.",
+            "Spring automatically retries the transaction."
+          ],
+          "explanation": "Use rollbackFor when a checked exception should roll back, or use an appropriate unchecked domain exception."
+        },
+        {
+          "prompt": "placeAll has no transaction annotation and calls this.place(), which has Transactional. Does that call start a transaction?",
+          "options": [
+            "No. Self-invocation bypasses the Spring transaction proxy.",
+            "Yes. The annotation applies regardless of how the call arrives.",
+            "Yes, but only for public methods.",
+            "The code does not compile."
+          ],
+          "explanation": "Annotate the externally called method or move place into another injected bean so the call passes through its proxy."
+        },
+        {
+          "prompt": "Make confirm transactional, load the order, call order.confirm(), and let dirty checking save the change.",
+          "checks": [
+            "Annotate confirm with Transactional",
+            "Load with findById",
+            "Handle a missing order with orElseThrow",
+            "Call order.confirm()"
+          ],
+          "explanation": "A managed entity is tracked by the persistence context. Its changes are flushed when the transaction commits."
+        }
+      ]
+    },
+    {
+      "title": "Schema migration",
+      "summary": "Record schema changes as ordered, versioned scripts so databases can be upgraded consistently.",
+      "objectives": [
+        "Name a Flyway migration correctly.",
+        "Avoid editing migrations already applied.",
+        "Plan compatible changes to existing data."
+      ],
+      "keyPoints": [
+        "Flyway records applied versions and checksums.",
+        "Use validate or none when migrations own schema changes.",
+        "Add nullable data first, backfill it, and tighten constraints after the application is ready."
+      ],
+      "practice": [
+        "Add order status through a versioned migration and test both an empty and an existing database.",
+        "The migration works without losing data or breaking the previous application version."
+      ],
+      "exercises": [
+        {
+          "prompt": "Name the Flyway version 2 SQL migration with description add_order_status.",
+          "hint": "Use V, the version, two underscores, the description, and .sql.",
+          "explanation": "V2__add_order_status.sql follows Flyway naming. There are two underscores before the description."
+        },
+        {
+          "prompt": "Order the safe steps for adding a required status column to an existing table.",
+          "items": [
+            "Add a nullable status column.",
+            "Backfill old rows with UPDATE orders SET status = 'NEW'.",
+            "Release an application version that always fills status for new rows.",
+            "Add NOT NULL and a default in a later migration."
+          ],
+          "explanation": "Separate the schema and application changes so old and new versions can coexist during rollout."
+        },
+        {
+          "prompt": "Which ddl-auto value fits a schema managed by Flyway?",
+          "options": [
+            "validate or none",
+            "update",
+            "create-drop",
+            "create"
+          ],
+          "explanation": "Let Flyway apply schema changes. validate checks entity mappings without silently changing the database."
+        }
+      ]
+    },
+    {
+      "title": "Relationships & query performance",
+      "summary": "Object relationships can trigger additional SQL. Inspect the queries and load only the data each use case needs.",
+      "objectives": [
+        "Recognize N+1 queries.",
+        "Load a needed relationship with JOIN FETCH.",
+        "Avoid making every relationship eager."
+      ],
+      "keyPoints": [
+        "Loading a list and then each item collection may produce N+1 queries.",
+        "JOIN FETCH or EntityGraph can load the relationship explicitly.",
+        "For paginated collections, consider fetching IDs first and relationships in a second query."
+      ],
+      "practice": [
+        "Inspect SQL for an order list and replace N+1 loading with an explicit fetch query.",
+        "The relevant use case loads its needed items without one query per order."
+      ],
+      "exercises": [
+        {
+          "prompt": "Loading 20 orders and then each item collection produces 21 queries. What is this called?",
+          "options": [
+            "The N+1 query problem",
+            "Deadlock",
+            "Cartesian product",
+            "Dirty read"
+          ],
+          "explanation": "One query loads orders and 20 additional queries load their items. The query count grows with the result size."
+        },
+        {
+          "prompt": "Write an @Query method that loads orders and their items in one query using JOIN FETCH.",
+          "checks": [
+            "Use the Query annotation",
+            "Use join fetch o.items in JPQL",
+            "Declare List<Order> findAllWithItems()"
+          ],
+          "explanation": "JOIN FETCH loads the requested relationship in the query. EntityGraph is another option for declaring the needed fetch plan."
+        }
+      ]
+    }
+  ]
+}

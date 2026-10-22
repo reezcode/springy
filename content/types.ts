@@ -1,5 +1,5 @@
 /**
- * Content model for Springpath.
+ * Content model for Springy.
  *
  * Everything in this file must stay JSON-serialisable, because lesson data is
  * passed from Server Components to Client Components (e.g. exercises).

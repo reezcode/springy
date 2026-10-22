@@ -1,9 +1,10 @@
 'use client';
 
-import { CheckCircle2, CircleDashed, RotateCcw, Trophy } from 'lucide-react';
+import { CheckCircle2, CircleDashed, RotateCcw, Sparkles, Trophy } from 'lucide-react';
 import { useState } from 'react';
 import type { Exercise } from '@/content/types';
 import { useProgress } from '@/hooks/use-progress';
+import { XP_PER_LESSON, XP_PER_QUESTION } from '@/lib/progress/rewards';
 import { exerciseKey } from '@/lib/progress/schema';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -53,6 +54,7 @@ export function ExerciseSet({ lessonId, exercises }: { lessonId: string; exercis
           <Trophy className="mt-0.5 size-5 shrink-0" aria-hidden="true" />
           <p className="text-sm leading-relaxed">
             <b>Materi selesai.</b> Semua latihan sudah benar dan tercatat di progresmu.
+            <span className="mt-1 block font-semibold">Bonus materi: +{XP_PER_LESSON} XP</span>
           </p>
         </div>
       )}
@@ -67,6 +69,7 @@ export function ExerciseSet({ lessonId, exercises }: { lessonId: string; exercis
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <span className="text-sm font-semibold text-fg-subtle tabular-nums">Soal {i + 1}</span>
                 <Badge>{kindLabel[exercise.kind]}</Badge>
+                <Badge tone="accent"><Sparkles /> {hydrated && record?.passed ? '' : '+'}{XP_PER_QUESTION} XP</Badge>
                 {hydrated && record?.passed ? (
                   <Badge tone="success"><CheckCircle2 /> Benar</Badge>
                 ) : hydrated && record ? (

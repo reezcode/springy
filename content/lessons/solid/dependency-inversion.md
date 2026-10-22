@@ -21,7 +21,7 @@ Checkout  ──►  PaymentGateway  ◄──  BankGateway
 
 Arah panah dari `BankGateway` kini terbalik: detail yang menyesuaikan diri dengan kontrak milik bisnis.
 
-## Dari kode yang terikat ke kode yang terbalik
+## Mengganti dependency konkret dengan interface
 
 ```java title="Sebelum: Checkout membuat detailnya sendiri"
 class Checkout {
@@ -79,12 +79,12 @@ Tidak ada jaringan, tidak ada mock framework, dan test berjalan dalam milidetik.
 | --- | --- | --- |
 | Jenis | Mekanisme / teknik | Prinsip desain |
 | Menjawab | Siapa yang membuat dan memberikan dependency? | Ke arah mana dependency menunjuk? |
-| Contoh tanpa yang lain | Menyuntikkan `BankGateway` konkret lewat constructor | Bisa diterapkan tanpa framework DI |
+| Contoh tanpa yang lain | Meng-inject `BankGateway` konkret lewat constructor | Bisa diterapkan tanpa framework DI |
 
 Spring memudahkan DI, tetapi keputusan bahwa `Checkout` bergantung pada `PaymentGateway` (bukan `BankGateway`) tetap keputusan desainmu.
 
 > [!TIP] Kenapa constructor injection?
-> Dependency terlihat jelas di signature, field bisa `final`, object tidak pernah setengah jadi, dan class bisa dibuat di test tanpa Spring. Ini juga cara yang direkomendasikan dokumentasi Spring untuk dependency wajib.
+> Dependency terlihat jelas di signature, field bisa `final`, object menerima semua dependency yang dibutuhkan saat dibuat, dan class bisa dibuat di test tanpa Spring. Ini juga cara yang direkomendasikan dokumentasi Spring untuk dependency wajib.
 
 > [!WARNING] Abstraksi milik siapa?
 > Nama dan bentuk interface sebaiknya mengikuti kebutuhan bisnis (`PaymentGateway.charge`), bukan meniru API vendor (`BcaClient.postTransferV2`). Jika interface hanya cermin dari detail, ketergantungan sebenarnya belum terbalik.

@@ -6,9 +6,9 @@ Tidak semua interaksi butuh jawaban seketika. Saat order dikonfirmasi, Notificat
 Order ──publish──► [exchange] ──route──► [queue: order-confirmed] ──deliver──► Notification
 ```
 
-Manfaatnya: coupling waktu berkurang, lonjakan beban teredam antrean, dan konsumen baru bisa ditambahkan tanpa mengubah Order.
+Order dan Notification tidak harus aktif pada waktu yang sama. Queue menampung pesan saat beban naik, dan consumer baru bisa ditambahkan tanpa mengubah Order.
 
-## Dua sisi jaminan
+## Publisher confirm dan consumer acknowledgement
 
 Pengiriman pesan punya dua titik rawan, dan RabbitMQ menyediakan mekanisme berbeda untuk masing-masing.
 
@@ -39,7 +39,7 @@ Kombinasi publisher confirm + ack setelah proses menghasilkan jaminan **at-least
 - Publisher mengirim ulang karena confirm tidak sampai.
 - Relay outbox mengirim ulang (materi berikutnya).
 
-"Exactly-once" end-to-end secara umum tidak tersedia gratis. Yang realistis adalah **at-least-once delivery + consumer idempotent**.
+Jaminan exactly-once end-to-end membutuhkan koordinasi tambahan dan tidak cukup hanya dengan konfigurasi broker. Yang realistis adalah **at-least-once delivery + consumer idempotent**.
 
 ## Consumer idempotent
 

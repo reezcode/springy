@@ -3,7 +3,7 @@
 import { Check, Eye, EyeOff, RotateCcw, X } from 'lucide-react';
 import { useId, useState } from 'react';
 import type { CodeExercise } from '@/content/types';
-import { gradeCode, type CheckResult } from '@/lib/grading';
+import { MAX_CODE_LENGTH, gradeCode, type CheckResult } from '@/lib/grading';
 import { cn } from '@/lib/cn';
 import { Button } from '@/components/ui/button';
 import { CodeBlock } from '@/components/content/code-block';
@@ -54,7 +54,7 @@ export function CodeQuestion({ exercise, solved, onResult }: Props) {
         <Prompt text={exercise.prompt} />
       </label>
       <p className="mt-1 text-sm text-fg-muted">
-        Jawaban diperiksa dengan aturan statis terhadap kode (komentar diabaikan), bukan dengan menjalankan JVM. Tekan <kbd className="rounded border border-border bg-subtle px-1 font-mono text-xs">Ctrl/⌘ + Enter</kbd> untuk memeriksa.
+        Pemeriksa mencocokkan pola kode dan mengabaikan komentar. Kode tidak dijalankan, jadi tetap coba di IDE untuk memastikan hasilnya. Tekan <kbd className="rounded border border-border bg-subtle px-1 font-mono text-xs">Ctrl/⌘ + Enter</kbd> untuk memeriksa.
       </p>
 
       <div className="mt-4 overflow-hidden rounded-xl border border-black/10 bg-code-bg dark:border-border">
@@ -86,6 +86,7 @@ export function CodeQuestion({ exercise, solved, onResult }: Props) {
             }}
             onKeyDown={onKeyDown}
             onBlur={(e) => delete e.currentTarget.dataset.escaped}
+            maxLength={MAX_CODE_LENGTH}
             spellCheck={false}
             autoCapitalize="off"
             autoCorrect="off"

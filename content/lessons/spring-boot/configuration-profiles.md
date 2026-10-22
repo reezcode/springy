@@ -51,7 +51,7 @@ public record InventoryProperties(String baseUrl, Duration timeout) {}
 public class OrderServiceApplication { ... }
 ```
 
-Kini `InventoryProperties` bisa di-inject ke bean mana pun. Nilai `2s` otomatis dikonversi ke `Duration`, dan kamu bisa menambahkan anotasi validasi (`@NotBlank`, `@Validated`) agar aplikasi gagal start jika konfigurasi salah. Gagal cepat saat start jauh lebih baik daripada gagal saat request pertama.
+Kini `InventoryProperties` bisa di-inject ke bean mana pun. Nilai `2s` otomatis dikonversi ke `Duration`, dan kamu bisa menambahkan annotation validasi (`@NotBlank`, `@Validated`) agar aplikasi gagal start jika konfigurasi salah. Gagal cepat saat start jauh lebih baik daripada gagal saat request pertama.
 
 ## Profile
 
@@ -69,5 +69,5 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 
 Gunakan profile untuk **perbedaan perilaku** antarlingkungan. Untuk nilai seperti URL dan kredensial, environment variable biasanya lebih sederhana dan cocok dengan container.
 
-> [!WARNING] Rahasia tidak masuk repository
-> Jangan commit password, token, atau API key di `application.yml` maupun file profile. Suntikkan lewat environment variable, secret di platform (Kubernetes/OpenShift Secret), atau secret manager. Jika rahasia sempat ter-commit, anggap bocor dan ganti nilainya.
+> [!WARNING] Secret tidak masuk repository
+> Jangan commit password, token, atau API key di `application.yml` maupun file profile. Inject lewat environment variable, secret di platform (Kubernetes/OpenShift Secret), atau secret manager. Jika secret sempat ter-commit, anggap bocor dan ganti nilainya.

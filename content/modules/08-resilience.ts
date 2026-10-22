@@ -5,9 +5,9 @@ const r = String.raw;
 const resilience: ModuleInput = {
   slug: 'resilience-messaging',
   title: 'Resilience & messaging',
-  subtitle: 'Rancang saat jaringan tidak baik-baik saja.',
+  subtitle: 'Tangani timeout, request berulang, dan pesan duplikat.',
   description:
-    'Retry yang aman dengan idempotency key, circuit breaker untuk menghentikan kegagalan berantai, jaminan pengiriman pesan dengan publisher confirm dan consumer acknowledgement, serta outbox dan saga untuk konsistensi lintas service.',
+    'Atur retry dan idempotency key agar request aman diulang. Pelajari circuit breaker, publisher confirm, dan consumer acknowledgement, lalu gunakan outbox dan saga untuk mengatur perubahan data lintas service.',
   category: 'Microservices',
   hours: '8–12',
   tint: 'blue',
@@ -209,7 +209,7 @@ public void on(OrderConfirmed event) {
             { label: 'Menyimpan ID setelah diproses', pattern: r`processed\s*\.\s*save\s*\(`, hint: 'Setelah mengirim, panggil `processed.save(new ProcessedMessage(event.id()))`.' },
             { label: 'Simpan dilakukan setelah `notifier.send`', pattern: r`notifier\s*\.\s*send[\s\S]*processed\s*\.\s*save`, hint: 'Urutan: periksa → proses → simpan ID.' },
           ],
-          explanation: 'Unique constraint pada tabel ID pesan menjaga race condition antar-consumer. Untuk efek eksternal seperti email, tambahkan juga key idempotensi di penyedia email bila didukung.',
+          explanation: 'Unique constraint pada tabel ID pesan mencegah dua consumer mencatat ID pesan yang sama secara bersamaan. Untuk efek eksternal seperti email, tambahkan juga idempotency key di penyedia email bila didukung.',
         },
       ],
     },

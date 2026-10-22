@@ -1,0 +1,171 @@
+{
+  "title": "Introduction to OpenShift",
+  "subtitle": "Deploy an app and learn the main OpenShift resources.",
+  "description": "Use projects, Pods, Deployments, Services, and Routes to run an application. Prepare an arbitrary-UID-compatible image and configure JVM resource requests and limits.",
+  "lessons": [
+    {
+      "title": "OCP, Kubernetes & projects",
+      "summary": "OpenShift builds on Kubernetes and adds developer tooling and platform controls. A project scopes access and resources.",
+      "objectives": [
+        "Explain the relationship between OpenShift and Kubernetes.",
+        "Switch the active project with oc."
+      ],
+      "keyPoints": [
+        "Kubernetes resources and concepts apply in OpenShift.",
+        "A project adds OpenShift access and management features to a namespace.",
+        "This module focuses on application deployment, not cluster administration."
+      ],
+      "practice": [
+        "Create or select a sandbox project and inspect its resources with oc.",
+        "Commands run in the intended project with appropriate access."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which statement best describes OpenShift and Kubernetes?",
+          "options": [
+            "OpenShift is a Kubernetes-based platform with additional developer, security, and operations features.",
+            "OpenShift is an incompatible replacement for Kubernetes.",
+            "OpenShift is another name for Docker.",
+            "Kubernetes is an OpenShift plugin."
+          ],
+          "explanation": "Kubernetes knowledge carries over to OpenShift, which adds resources such as Route and controls such as SCC."
+        },
+        {
+          "prompt": "Which oc command switches to project belajar-microservices?",
+          "hint": "Use oc project followed by the project name.",
+          "explanation": "oc project belajar-microservices changes the active project. oc projects lists projects you can access."
+        }
+      ]
+    },
+    {
+      "title": "Pod, Deployment & Service",
+      "summary": "Pods run containers, Deployments manage replicas and rollouts, and Services give callers a stable address.",
+      "objectives": [
+        "Match a Deployment selector to pod labels.",
+        "Use a Service instead of a pod IP."
+      ],
+      "keyPoints": [
+        "A pod is replaceable and may receive a new IP.",
+        "Deployment manages ReplicaSets and desired replica count.",
+        "Service selects matching ready pods behind stable DNS."
+      ],
+      "practice": [
+        "Deploy two replicas and expose them through a Service on port 8080.",
+        "Replacing a pod does not require callers to discover a new pod IP."
+      ],
+      "exercises": [
+        {
+          "prompt": "Complete a Deployment with 2 replicas, selector and pod label app: order, and image image-registry.openshift-image-registry.svc:5000/belajar/order:0.1 on port 8080.",
+          "checks": [
+            "Set replicas: 2",
+            "Set selector matchLabels app: order",
+            "Set pod template label app: order",
+            "Use the specified registry image",
+            "Set containerPort: 8080"
+          ],
+          "explanation": "The selector must match the pod template labels. The Service uses labels to select ready pods."
+        },
+        {
+          "prompt": "Why should another application call Order through a Service instead of a pod IP?",
+          "options": [
+            "Pod IPs change; a Service provides stable DNS and an IP while routing to ready pods.",
+            "Pod IPs can never be accessed.",
+            "A Service automatically makes application code faster.",
+            "A Service stores application data."
+          ],
+          "explanation": "Service separates callers from replaceable pod instances and routes traffic to those that are ready."
+        }
+      ]
+    },
+    {
+      "title": "Route & application access",
+      "summary": "A Route maps an external hostname to a Service through the OpenShift router.",
+      "objectives": [
+        "Compare edge, passthrough, and re-encrypt TLS.",
+        "Trace a request from a browser to a pod."
+      ],
+      "keyPoints": [
+        "Edge terminates client TLS at the router.",
+        "Passthrough sends TLS through to the pod; re-encrypt creates a second TLS connection.",
+        "A Route targets a Service, which selects application pods."
+      ],
+      "practice": [
+        "Create an edge Route for the order Service.",
+        "The application is reachable through the Route’s HTTPS hostname."
+      ],
+      "exercises": [
+        {
+          "prompt": "With edge TLS termination, which connection is encrypted?",
+          "options": [
+            "Browser to OpenShift router; router to pod uses plain HTTP.",
+            "Browser to pod with no intermediate decryption.",
+            "None.",
+            "Only router to pod."
+          ],
+          "explanation": "Use re-encrypt or passthrough when the internal connection must also be encrypted."
+        },
+        {
+          "prompt": "Order a request’s path from the user to Spring Boot.",
+          "items": [
+            "The browser opens https://order-belajar.apps.cluster.example.com.",
+            "The OpenShift router receives the request and matches the Route.",
+            "The Route forwards to Service order.",
+            "The Service selects a ready pod.",
+            "Spring Boot processes the request on port 8080 in the pod."
+          ],
+          "explanation": "Route handles external routing and TLS; Service provides stable addressing and pod selection."
+        }
+      ]
+    },
+    {
+      "title": "Arbitrary UID & resource limits",
+      "summary": "Prepare writable directories for OpenShift’s assigned UID and budget JVM memory within container limits.",
+      "objectives": [
+        "Make required directories writable through group permissions.",
+        "Set resource requests and limits.",
+        "Investigate OOMKilled before increasing privileges."
+      ],
+      "keyPoints": [
+        "Group-based permissions support arbitrary UIDs without running as root.",
+        "Requests guide scheduling; limits constrain resource use.",
+        "Heap is only part of JVM memory, so reserve room for non-heap usage."
+      ],
+      "practice": [
+        "Run the image as a different UID locally and deploy it with explicit resources.",
+        "The app can write required files without privileged SCCs and stays within its memory budget."
+      ],
+      "exercises": [
+        {
+          "prompt": "Prepare /app/data for an arbitrary UID: assign group 0, give the group owner-equivalent permissions, and use USER 1001.",
+          "checks": [
+            "Set the directory group to root with chgrp -R 0",
+            "Use chmod -R g=u",
+            "Set USER 1001",
+            "Do not use USER root"
+          ],
+          "explanation": "Group permissions allow the assigned UID to access the required directory without relaxing SCC controls."
+        },
+        {
+          "prompt": "A pod repeatedly reports OOMKilled. What should you investigate first?",
+          "options": [
+            "It exceeded its memory limit; inspect JVM heap and non-heap use and tune the limit or MaxRAMPercentage.",
+            "The disk is full; delete logs.",
+            "The image is missing; rename it.",
+            "Disable readiness probes."
+          ],
+          "explanation": "JVM memory includes heap, metaspace, stacks, buffers, and code cache. Leave headroom below the container limit."
+        },
+        {
+          "prompt": "The image fails with Permission denied writing /app/data. What is the best fix?",
+          "options": [
+            "Fix the directory’s group-0 ownership and group write permission in the image.",
+            "Request anyuid so it can run as root.",
+            "Request privileged SCC.",
+            "Make every file chmod 777."
+          ],
+          "explanation": "Fix the image’s required directory permissions rather than broadly weakening container or cluster access controls."
+        }
+      ]
+    }
+  ]
+}

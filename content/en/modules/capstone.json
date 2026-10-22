@@ -1,0 +1,169 @@
+{
+  "title": "Capstone: Mini Commerce",
+  "subtitle": "Build Mini Commerce from design through deployment.",
+  "description": "Combine Order, Inventory, and Notification. Define contracts, test failures, build a container image, and document how another developer can run and operate the project.",
+  "lessons": [
+    {
+      "title": "Design & documentation",
+      "summary": "Define service boundaries, contracts, and data ownership before implementation.",
+      "objectives": [
+        "Describe the main user flow.",
+        "Write API and event contracts.",
+        "Record architecture decisions in ADRs."
+      ],
+      "keyPoints": [
+        "Keep the initial scope to Order, Inventory, and a Notification worker.",
+        "Assign one owner to each data set.",
+        "Document failure behavior as well as the happy path."
+      ],
+      "practice": [
+        "Draw the order flow and write contracts for POST /orders, POST /reservations, and OrderConfirmed.",
+        "Another developer can explain the flow and ownership from the documents."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which capstone scope best demonstrates the concepts within a manageable project?",
+          "options": [
+            "Order and Inventory HTTP services plus a Notification consumer and one complete flow including failures.",
+            "Ten services including recommendations and analytics.",
+            "One isolated CRUD service with no communication.",
+            "Diagrams without running code."
+          ],
+          "explanation": "A complete flow with failure tests exercises communication, resilience, data ownership, and event delivery without excessive scope."
+        },
+        {
+          "prompt": "Order the design activities before implementation.",
+          "items": [
+            "Write the main flow from the user’s perspective.",
+            "Define service boundaries and data owners.",
+            "Write API and event contracts including failures.",
+            "Record decisions and trade-offs in ADRs."
+          ],
+          "explanation": "Business behavior guides boundaries; boundaries determine contracts; ADRs explain the choices."
+        }
+      ]
+    },
+    {
+      "title": "Build & test failures",
+      "summary": "Connect services and storage, secure the APIs, and test timeouts, retries, and duplicate events.",
+      "objectives": [
+        "Implement the order flow with timeouts and idempotency.",
+        "Verify behavior during an Inventory outage.",
+        "Automate duplicate-delivery and rollback tests."
+      ],
+      "keyPoints": [
+        "Each documented failure should have a repeatable check.",
+        "A failed dependency should produce a bounded response rather than an indefinite wait.",
+        "Duplicate events must not create duplicate notifications."
+      ],
+      "practice": [
+        "Demonstrate Inventory timeout, idempotent POST retries, consumer deduplication, and local rollback.",
+        "Each scenario has a test or reproducible experiment with expected and actual results."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which evidence best demonstrates that Notification is idempotent?",
+          "options": [
+            "An integration test sends the same event ID twice and asserts one notification record.",
+            "A code comment saying it is idempotent.",
+            "A screenshot of one successful delivery.",
+            "90% consumer line coverage."
+          ],
+          "explanation": "Repeat the event deliberately and assert the resulting side effect count. Comments and coverage alone do not test duplication."
+        },
+        {
+          "prompt": "When Inventory is stopped, which behavior should Order show according to the previous design?",
+          "options": [
+            "The request completes within its timeout.",
+            "The client receives a clear error such as 503 ProblemDetail.",
+            "The order succeeds by assuming stock is available.",
+            "The request thread waits until Inventory returns."
+          ],
+          "explanation": "Fail within a defined deadline and report the dependency failure. An open circuit rejects further calls without waiting on Inventory."
+        }
+      ]
+    },
+    {
+      "title": "Build, release & deploy",
+      "summary": "Test first, build an image once, and run that same image with environment-specific configuration.",
+      "objectives": [
+        "Order a CI release pipeline.",
+        "Keep secrets outside images.",
+        "Write rollout and rollback instructions."
+      ],
+      "keyPoints": [
+        "Promote the same tested image rather than rebuilding per environment.",
+        "Use version or commit tags and record the digest.",
+        "Application rollback does not reverse database migrations."
+      ],
+      "practice": [
+        "Run the same image with local Compose and, optionally, an OpenShift sandbox.",
+        "Rollout, health verification, and rollback steps are documented and tested."
+      ],
+      "exercises": [
+        {
+          "prompt": "Order the release pipeline steps.",
+          "items": [
+            "Run unit and integration tests with ./mvnw verify.",
+            "Build the image and tag it with a version or commit.",
+            "Push the image to a registry.",
+            "Deploy it to staging using staging configuration.",
+            "Verify health and run smoke tests.",
+            "Deploy the same image to production."
+          ],
+          "explanation": "Build once after tests pass, then promote the same artifact through environments."
+        },
+        {
+          "prompt": "How should the application receive a production database password?",
+          "options": [
+            "Inject it from a platform Secret as an environment variable at deploy time.",
+            "Store it in application-prod.yml inside the image.",
+            "Build a separate production image containing the password.",
+            "Pass it as a build argument."
+          ],
+          "explanation": "Keep secrets out of image layers, build history, and source control. Supply environment-specific secrets at runtime."
+        }
+      ]
+    },
+    {
+      "title": "Review & handover",
+      "summary": "The README should let someone run, test, inspect, and recover the application without relying on your memory.",
+      "objectives": [
+        "Test the README in a clean environment.",
+        "Document known limitations and impact.",
+        "Review the project against its definition of done."
+      ],
+      "keyPoints": [
+        "Include prerequisites and commands for run, test, deploy, and recovery.",
+        "Document unsupported conditions and how to handle them.",
+        "Have another person follow the instructions from a clean setup."
+      ],
+      "practice": [
+        "Ask another developer to follow the README and record any missing steps.",
+        "The project can be run, tested, investigated, and recovered using the documentation."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which sections are essential in the capstone README?",
+          "options": [
+            "Prerequisites and commands to run every service locally.",
+            "How to run tests and failure scenarios.",
+            "How to inspect health, logs, and traces during a problem.",
+            "A complete list of every commit."
+          ],
+          "explanation": "A useful README explains operation and verification. Git already records commit history."
+        },
+        {
+          "prompt": "Your outbox relay does not support multiple replicas yet. What should handover include?",
+          "options": [
+            "A known limitation with its impact and a plan to address it.",
+            "Hide it so the project looks complete.",
+            "Remove the outbox feature.",
+            "Ignore it because this is a learning project."
+          ],
+          "explanation": "State the limitation so the next operator understands which deployment configurations are supported."
+        }
+      ]
+    }
+  ]
+}

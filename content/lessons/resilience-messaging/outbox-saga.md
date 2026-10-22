@@ -1,6 +1,6 @@
 ## Masalah dual write
 
-Setelah order disimpan, Order perlu menerbitkan `OrderCreated`. Cara naif:
+Setelah order disimpan, Order perlu menerbitkan `OrderCreated`. Implementasi langsungnya mungkin seperti ini:
 
 ```java
 @Transactional
@@ -11,7 +11,7 @@ public Long place(CreateOrderRequest request) {
 }
 ```
 
-Ada dua sistem yang ditulis (database dan broker) tanpa transaksi yang mencakup keduanya:
+Ada penulisan ke dua sistem (database dan broker) tanpa transaksi yang mencakup keduanya:
 
 | Kejadian | Akibat |
 | --- | --- |

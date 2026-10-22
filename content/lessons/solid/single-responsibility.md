@@ -6,11 +6,11 @@ SOLID adalah lima prinsip desain yang dipopulerkan Robert C. Martin untuk menjag
 | --- | --- | --- |
 | S | Single Responsibility | Berapa alasan class ini berubah? |
 | O | Open/Closed | Bisakah variasi baru ditambah tanpa mengubah kode lama? |
-| L | Liskov Substitution | Bisakah implementasi menggantikan kontraknya tanpa kejutan? |
+| L | Liskov Substitution | Apakah setiap implementasi memenuhi kontrak yang sama? |
 | I | Interface Segregation | Apakah klien dipaksa bergantung pada method yang tidak dipakai? |
 | D | Dependency Inversion | Apakah aturan bisnis bergantung pada detail teknis? |
 
-Prinsip ini bukan aturan mutlak. Anggap sebagai alat untuk mengenali **bau kode** dan memutuskan di mana fleksibilitas benar-benar dibutuhkan.
+Prinsip ini bukan aturan mutlak. Anggap sebagai alat untuk mengenali **code smell** dan memutuskan di mana fleksibilitas benar-benar dibutuhkan.
 
 ## Satu alasan untuk berubah
 
@@ -26,7 +26,7 @@ public class OrderManager {
 }
 ```
 
-Tiga pihak berbeda bisa memaksa perubahan pada class yang sama. Akibatnya:
+Tiga kebutuhan berbeda bisa menyebabkan class yang sama berubah. Akibatnya:
 
 - Perubahan template email berisiko merusak kalkulasi harga karena berada di file yang sama.
 - Test untuk kalkulasi harga ikut butuh database dan server email.

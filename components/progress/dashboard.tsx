@@ -29,7 +29,7 @@ export function ContinueCard({ outline }: { outline: Outline }) {
       <div className="relative flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div className="max-w-xl">
           <p className="text-sm font-semibold text-accent-text">{done ? 'Semua materi selesai' : fresh ? 'Mulai dari sini' : 'Lanjutkan belajar'}</p>
-          <h2 className="mt-2 text-2xl font-bold tracking-tight text-balance">{done ? 'Saatnya membangun capstone dan meninjau ulang.' : lesson.title}</h2>
+          <h2 className="mt-2 text-2xl font-bold tracking-tight text-balance">{done ? 'Semua latihan selesai. Mau mengulang materi?' : lesson.title}</h2>
           {!done && (
             <p className="mt-2 flex flex-wrap items-center gap-x-2 text-fg-muted">
               <span>Modul {mod.number} · {mod.title}</span>
@@ -39,7 +39,7 @@ export function ContinueCard({ outline }: { outline: Outline }) {
           )}
         </div>
         <LinkButton href={done ? '/modules/' : lessonHref(mod, lesson)} className="h-11 self-start px-5 md:self-auto">
-          {done ? 'Lihat jalur belajar' : fresh ? 'Mulai materi pertama' : 'Lanjutkan'}
+          {done ? 'Lihat learning path' : fresh ? 'Mulai materi pertama' : 'Lanjutkan'}
           <ArrowRight className="size-4" />
         </LinkButton>
       </div>
@@ -53,10 +53,10 @@ export function StatsRow({ outline }: { outline: Outline }) {
   const streak = hydrated ? currentStreak(progress.activity) : 0;
   const v = (n: number) => (hydrated ? n : 0);
   const stats = [
-    { icon: BookCheck, label: 'Materi lulus', value: v(o.lessonsComplete), total: o.lessonsTotal },
-    { icon: CheckCheck, label: 'Latihan benar', value: v(o.exercisesPassed), total: o.exercisesTotal },
-    { icon: Layers, label: 'Modul tuntas', value: v(o.modulesComplete), total: outline.length },
-    { icon: Flame, label: 'Hari beruntun', value: streak, total: undefined },
+    { icon: BookCheck, label: 'Materi selesai', value: v(o.lessonsComplete), total: o.lessonsTotal },
+    { icon: CheckCheck, label: 'Soal terjawab benar', value: v(o.exercisesPassed), total: o.exercisesTotal },
+    { icon: Layers, label: 'Modul selesai', value: v(o.modulesComplete), total: outline.length },
+    { icon: Flame, label: 'Hari belajar beruntun', value: streak, total: undefined },
   ];
   return (
     <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">

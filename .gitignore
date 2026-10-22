@@ -4,3 +4,10 @@ out/
 *.tsbuildinfo
 .env*
 .DS_Store
+
+# English routes and components generated from the shared app.
+.generated/
+app/(english)/
+
+playwright-report/
+test-results/

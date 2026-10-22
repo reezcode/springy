@@ -1,0 +1,192 @@
+{
+  "title": "Resilience & messaging",
+  "subtitle": "Handle timeouts, repeated requests, and duplicate messages.",
+  "description": "Use bounded retries and idempotency, protect dependencies with circuit breakers, and understand message acknowledgements. Apply outbox and saga patterns across service boundaries.",
+  "lessons": [
+    {
+      "title": "Timeout, retry & idempotency",
+      "summary": "Retries help transient failures only when repeating the operation is safe.",
+      "objectives": [
+        "Distinguish retryable failures.",
+        "Configure bounded backoff.",
+        "Use an idempotency key for uncertain POST outcomes."
+      ],
+      "keyPoints": [
+        "A timeout does not prove the server failed to commit.",
+        "Bound retries with a total deadline, backoff, and jitter.",
+        "Store the operation and idempotency key atomically in shared storage."
+      ],
+      "practice": [
+        "Retry order creation using the same key and payload.",
+        "Only one order is created, and reusing the key with a different payload is rejected."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which conditions may justify an automatic retry, provided the operation is safe to repeat?",
+          "options": [
+            "503 Service Unavailable",
+            "A response read timeout",
+            "400 Bad Request",
+            "409 Conflict because stock is exhausted"
+          ],
+          "explanation": "Retry transient conditions, not invalid requests or business conflicts. Repeating a non-idempotent operation requires an idempotency strategy."
+        },
+        {
+          "prompt": "A client sends POST /orders and times out. What is definitely true?",
+          "options": [
+            "The client does not know whether an order was created.",
+            "The order was definitely not created.",
+            "The order was definitely created.",
+            "The server is definitely down."
+          ],
+          "explanation": "The response may be lost after a successful commit, so blindly retrying POST can create duplicates."
+        },
+        {
+          "prompt": "Configure a Resilience4j Retry instance named inventory with at most 3 attempts, a 200ms initial wait, and exponential backoff.",
+          "checks": [
+            "Set maxAttempts: 3",
+            "Set waitDuration: 200ms",
+            "Set enableExponentialBackoff: true",
+            "Place settings under instances.inventory"
+          ],
+          "explanation": "maxAttempts includes the first call. Exponential backoff increases delays; jitter helps avoid synchronized retry bursts."
+        }
+      ]
+    },
+    {
+      "title": "Circuit breaker",
+      "summary": "Stop calling a failing dependency temporarily so callers can fail quickly and the dependency can recover.",
+      "objectives": [
+        "Explain CLOSED, OPEN, and HALF_OPEN.",
+        "Configure a minimum sample count."
+      ],
+      "keyPoints": [
+        "CLOSED records call results in a sliding window.",
+        "OPEN rejects calls without contacting the dependency.",
+        "HALF_OPEN permits probes to decide whether to close or reopen."
+      ],
+      "practice": [
+        "Configure a circuit breaker and observe a failing Inventory dependency.",
+        "The circuit rejects calls while open and allows recovery probes later."
+      ],
+      "exercises": [
+        {
+          "prompt": "Order the circuit breaker cycle as a dependency fails and recovers.",
+          "items": [
+            "CLOSED forwards calls and records their results.",
+            "Failure rate crosses the threshold after the minimum sample count.",
+            "OPEN rejects calls immediately.",
+            "The wait expires and the circuit enters HALF_OPEN.",
+            "Successful probes return the circuit to CLOSED."
+          ],
+          "explanation": "HALF_OPEN probes recovery. Failed probes reopen the circuit and restart its wait."
+        },
+        {
+          "prompt": "What happens to a new Inventory call while the circuit is OPEN?",
+          "options": [
+            "It is rejected immediately with CallNotPermittedException without contacting Inventory.",
+            "It is sent with a longer timeout.",
+            "It is queued until the circuit closes.",
+            "It automatically goes to another Inventory instance."
+          ],
+          "explanation": "Failing fast frees caller resources and avoids repeatedly loading a dependency known to be failing."
+        },
+        {
+          "prompt": "Which Resilience4j property sets the minimum number of calls before calculating the failure rate?",
+          "hint": "Look for the minimum sample-count property.",
+          "explanation": "minimumNumberOfCalls prevents a tiny sample from opening the circuit too early."
+        }
+      ]
+    },
+    {
+      "title": "Event, acknowledgement & duplicates",
+      "summary": "Publisher confirms and consumer acknowledgements protect different stages of message delivery. Consumers still need to tolerate duplicates.",
+      "objectives": [
+        "Distinguish publisher confirm from consumer acknowledgement.",
+        "Handle duplicate event IDs."
+      ],
+      "keyPoints": [
+        "Confirm establishes broker acceptance; ack reports completion of consumption.",
+        "Acknowledging before work can lose it; acknowledging afterward can lead to redelivery.",
+        "Use idempotent consumers and a bounded retry/dead-letter policy."
+      ],
+      "practice": [
+        "Send the same notification event twice and record processed IDs.",
+        "Only one notification is recorded for that event ID."
+      ],
+      "exercises": [
+        {
+          "prompt": "A consumer acknowledges before sending email, then crashes during delivery. What can happen?",
+          "options": [
+            "The broker has removed the message, so the email may never be sent.",
+            "The broker necessarily resends the message.",
+            "The email is necessarily sent twice.",
+            "Nothing."
+          ],
+          "explanation": "Acknowledging after successful processing trades loss risk for duplicate risk, which the consumer can address with idempotency."
+        },
+        {
+          "prompt": "Skip an event if processed.existsById(event.id()) is true; otherwise send the notification and store its ID.",
+          "checks": [
+            "Check processed.existsById(event.id())",
+            "Return early for a duplicate",
+            "Save the processed ID",
+            "Save after notifier.send"
+          ],
+          "explanation": "A unique ID constraint handles competing consumers. External side effects still need provider-side idempotency to cover a crash between sending and recording."
+        }
+      ]
+    },
+    {
+      "title": "Outbox, saga & eventual consistency",
+      "summary": "Outbox writes business data and an event atomically. A saga coordinates local transactions and compensations across services.",
+      "objectives": [
+        "Explain the dual-write problem.",
+        "Persist an event in the same transaction as the order.",
+        "Order compensating actions for a failed workflow."
+      ],
+      "keyPoints": [
+        "A database commit cannot automatically commit a separate broker publish.",
+        "An outbox relay publishes stored events and may deliver duplicates.",
+        "Compensation is a new business operation, not a distributed database rollback."
+      ],
+      "practice": [
+        "Write an order and outbox record in one transaction, then publish through a relay.",
+        "The event remains available if the broker fails and consumers can handle redelivery."
+      ],
+      "exercises": [
+        {
+          "prompt": "An order commits, but publishing OrderCreated fails because the broker is down. What is the problem?",
+          "options": [
+            "The order exists but other services never receive its event.",
+            "The database automatically rolls back.",
+            "The broker automatically reads the event from the database.",
+            "Retries are guaranteed to fix it without stored state."
+          ],
+          "explanation": "This is a dual write. Outbox stores the event with the order so a relay can publish it after recovery."
+        },
+        {
+          "prompt": "Payment fails after stock is reserved. Put the saga and its compensations in order.",
+          "items": [
+            "Create a PENDING order.",
+            "Inventory reserves stock.",
+            "Payment fails to charge.",
+            "Inventory releases the reservation as compensation.",
+            "Mark the order CANCELLED as compensation."
+          ],
+          "explanation": "Compensations undo business effects of completed steps in reverse order."
+        },
+        {
+          "prompt": "Within the Transactional method, save the order and an outbox event together. Do not publish directly to the broker.",
+          "checks": [
+            "Keep Transactional on the method",
+            "Save the order",
+            "Call outbox.save(...)",
+            "Do not publish directly to the broker"
+          ],
+          "explanation": "The order and outbox record commit or roll back together. A separate relay handles broker delivery."
+        }
+      ]
+    }
+  ]
+}

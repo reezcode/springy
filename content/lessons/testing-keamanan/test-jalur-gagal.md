@@ -1,8 +1,8 @@
-## Kontrak yang paling mudah rusak
+## Menguji error response
 
-Happy path biasanya teruji karena developer mencobanya setiap hari. Yang sering rusak tanpa disadari adalah jalur gagal: aturan keamanan yang terlalu longgar setelah refactor, exception yang tiba-tiba menjadi 500, atau validasi yang hilang karena `@Valid` terhapus. Klien bergantung pada status ini, jadi semuanya perlu dibuktikan dengan test.
+Happy path biasanya teruji karena developer mencobanya setiap hari. Yang sering rusak tanpa disadari adalah skenario gagal: aturan keamanan yang terlalu longgar setelah refactor, exception yang tiba-tiba menjadi 500, atau validasi yang hilang karena `@Valid` terhapus. Klien memakai status tersebut untuk menentukan langkah berikutnya, jadi periksa hasilnya lewat test.
 
-## Slice test lapisan web
+## Slice test web layer
 
 `@WebMvcTest` memuat controller, advice, filter security, dan konfigurasi MVC saja, tanpa database. Service diganti dengan mock.
 

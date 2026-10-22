@@ -56,9 +56,9 @@ class InventoryGateway {
 
 Pilih nilai berdasarkan kebutuhan pengguna, bukan tebakan. Jika pengguna menunggu maksimal 3 detik untuk membuat order, panggilan ke Inventory tidak boleh menghabiskan 30 detik.
 
-## Memetakan kegagalan dengan sengaja
+## Memetakan error Inventory ke response Order
 
-Jangan biarkan exception teknis seperti `ResourceAccessException` atau `HttpServerErrorException` bocor sampai ke response Order sebagai 500 tanpa makna. Terjemahkan:
+Jangan biarkan exception teknis seperti `ResourceAccessException` atau `HttpServerErrorException` bocor sampai ke response Order sebagai 500 tanpa makna. Gunakan pemetaan seperti ini:
 
 | Kondisi di Inventory | Exception domain di Order | Response Order |
 | --- | --- | --- |

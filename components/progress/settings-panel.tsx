@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useProgress } from '@/hooks/use-progress';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { MotionToggle } from '@/components/layout/motion-toggle';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
 
 export function SettingsPanel() {
@@ -23,16 +24,21 @@ export function SettingsPanel() {
     const url = URL.createObjectURL(new Blob([actions.exportJson()], { type: 'application/json' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `springpath-progress-${new Date().toISOString().slice(0, 10)}.json`;
+    a.download = `springy-progress-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
-    setMessage({ ok: true, text: 'Cadangan progres diunduh.' });
+    setMessage({ ok: true, text: 'Backup progres berhasil diunduh.' });
   }
 
   async function importFile(f?: File) {
     if (!f) return;
-    const ok = f.size <= 2_000_000 && actions.importJson(await f.text());
-    setMessage(ok ? { ok: true, text: 'Progres diimpor dan digabung dengan progres saat ini.' } : { ok: false, text: 'File tidak valid. Pilih file ekspor Springpath (.json, maks. 2 MB).' });
+    let ok = false;
+    try {
+      ok = f.size <= 2_000_000 && actions.importJson(await f.text());
+    } catch {
+      ok = false;
+    }
+    setMessage(ok ? { ok: true, text: 'Progres dari file berhasil digabung dengan progresmu.' } : { ok: false, text: 'File tidak valid. Pilih file ekspor Springy (.json, maks. 2 MB).' });
     if (file.current) file.current.value = '';
   }
 
@@ -48,13 +54,15 @@ export function SettingsPanel() {
           <Button variant="secondary" onClick={() => file.current?.click()}><Upload className="size-4" /> Impor JSON</Button>
           <input ref={file} type="file" accept="application/json,.json" className="hidden" onChange={(e) => importFile(e.target.files?.[0])} />
         </div>
-        <p className="mt-4 text-xs text-fg-subtle">Impor menggabungkan data: latihan yang sudah benar tetap benar, catatan dengan materi yang sama diganti dari file. File ekspor versi lama juga diterima.</p>
+        <p className="mt-4 text-xs text-fg-subtle">Saat impor, hasil latihan yang sudah benar tetap tersimpan. Catatan untuk materi yang sama akan diganti dengan catatan dari file. File ekspor versi lama juga bisa dipakai.</p>
       </Card>
 
       <Card className="p-6">
         <h2 className="text-lg font-semibold">Tampilan</h2>
         <p className="mt-2 text-sm leading-relaxed text-fg-muted">Pilih tema terang, gelap, atau ikuti pengaturan sistem.</p>
         <ThemeToggle className="mt-5" />
+        <div className="mt-5 border-t border-border pt-3"><MotionToggle /></div>
+        <p className="mt-2 text-xs leading-relaxed text-fg-subtle">Mode tenang mematikan gerakan dan confetti. Preferensi reduced motion dari perangkat selalu diikuti.</p>
       </Card>
 
       <Card className="p-6 md:col-span-2">

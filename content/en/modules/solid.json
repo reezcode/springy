@@ -1,0 +1,174 @@
+{
+  "title": "SOLID & code design",
+  "subtitle": "Practice making code easier to change.",
+  "description": "Learn SRP, OCP, LSP, ISP, and DIP through code that needs to change or is difficult to test. Recognize code smells and decide when an interface or a separate class helps.",
+  "lessons": [
+    {
+      "title": "Single Responsibility Principle",
+      "summary": "Separate responsibilities that change for different reasons, such as pricing, storage, and notifications.",
+      "objectives": [
+        "Identify classes with unrelated reasons to change.",
+        "Separate cohesive responsibilities into classes."
+      ],
+      "keyPoints": [
+        "SRP concerns reasons to change, not the number of methods.",
+        "A class serving unrelated business actors may need to be split.",
+        "Keep calculations separate from database and email operations."
+      ],
+      "practice": [
+        "Split an OrderManager that calculates totals, saves orders, and emails receipts into separate classes.",
+        "Changing an email template does not change pricing code."
+      ],
+      "exercises": [
+        {
+          "prompt": "According to SRP, what does “one responsibility” mean?",
+          "options": [
+            "One reason to change, usually associated with one actor requesting changes.",
+            "One method per class.",
+            "At most 100 lines of code.",
+            "One field per class."
+          ],
+          "explanation": "SRP groups behavior that changes for the same reason. Method counts and line limits do not identify that boundary."
+        },
+        {
+          "prompt": "Which methods do not belong in PriceCalculator?",
+          "options": [
+            "BigDecimal subtotal(List<OrderLine> lines)",
+            "void saveToDatabase(Order order)",
+            "void sendReceiptEmail(Order order)",
+            "BigDecimal applyTax(BigDecimal amount)"
+          ],
+          "explanation": "Persistence and email delivery change for different reasons than pricing. Put them in a repository and notifier."
+        }
+      ]
+    },
+    {
+      "title": "Open/Closed Principle",
+      "summary": "Add a new variation through an implementation rather than editing stable business flow.",
+      "objectives": [
+        "Add a new discount strategy through an interface.",
+        "Avoid abstractions for hypothetical variations."
+      ],
+      "keyPoints": [
+        "An interface can provide an extension point for a known variation.",
+        "Checkout can call DiscountPolicy without knowing each discount type.",
+        "Introduce abstractions when the need is concrete."
+      ],
+      "practice": [
+        "Add PromoDiscount without changing Checkout.",
+        "The new discount works through the existing DiscountPolicy contract."
+      ],
+      "exercises": [
+        {
+          "prompt": "Add PromoDiscount without changing Checkout. Implement DiscountPolicy and return the subtotal after a 20% discount.",
+          "checks": [
+            "Declare PromoDiscount implements DiscountPolicy",
+            "Provide public long apply(long ...)",
+            "Return 80% of the subtotal",
+            "Avoid instanceof and type checks"
+          ],
+          "explanation": "Checkout calls policy.apply(subtotal). The new policy supplies behavior without changing that flow."
+        },
+        {
+          "prompt": "A team has one shipping method and no plans for another. What is the most sensible next step?",
+          "options": [
+            "Keep a simple implementation and extract an interface when another real variation appears.",
+            "Build an interface, factory, and plugin loader immediately.",
+            "Use three levels of inheritance.",
+            "Copy the implementation whenever a variation is needed."
+          ],
+          "explanation": "Abstractions add maintenance work. Introduce a variation point once its requirements are clear."
+        }
+      ]
+    },
+    {
+      "title": "Liskov Substitution & Interface Segregation",
+      "summary": "Implementations must fulfill their contracts. Split interfaces so clients only depend on operations they use.",
+      "objectives": [
+        "Recognize implementations that break a parent contract.",
+        "Split read and write interfaces according to client needs."
+      ],
+      "keyPoints": [
+        "A subtype should not strengthen preconditions or weaken promised results.",
+        "Throwing UnsupportedOperationException can reveal a contract mismatch.",
+        "Small client-specific interfaces make test fakes simpler."
+      ],
+      "practice": [
+        "Split OrderRepository into OrderReader and OrderWriter.",
+        "A reporting component can use OrderReader without implementing save."
+      ],
+      "exercises": [
+        {
+          "prompt": "ReadOnlyOrderRepository implements OrderRepository but throws UnsupportedOperationException from save(). Which principle is most directly violated?",
+          "options": [
+            "Liskov Substitution: callers do not receive the behavior promised by OrderRepository.",
+            "Single Responsibility.",
+            "Open/Closed.",
+            "None; this is always a standard pattern."
+          ],
+          "explanation": "The implementation cannot fulfill the write contract. Splitting read and write interfaces lets it implement only the supported behavior."
+        },
+        {
+          "prompt": "Split the interface into OrderReader with findById and OrderWriter with save.",
+          "checks": [
+            "Define OrderReader with findById",
+            "Define OrderWriter with save",
+            "Keep save out of OrderReader",
+            "Keep findById out of OrderWriter"
+          ],
+          "explanation": "Read-only clients depend on OrderReader. A JPA repository can implement both contracts."
+        }
+      ]
+    },
+    {
+      "title": "Dependency Inversion Principle",
+      "summary": "Business logic uses an interface that fits its needs. Technical implementations follow that interface.",
+      "objectives": [
+        "Depend on an interface rather than a concrete gateway.",
+        "Pass dependencies through the constructor."
+      ],
+      "keyPoints": [
+        "High-level and low-level modules both depend on abstractions.",
+        "The business-facing interface should describe what the business needs.",
+        "Dependency injection is a technique; dependency inversion is a design principle."
+      ],
+      "practice": [
+        "Refactor Checkout to receive PaymentGateway instead of constructing BankGateway.",
+        "A test can pass FakeGateway without starting Spring or contacting a bank."
+      ],
+      "exercises": [
+        {
+          "prompt": "Refactor Checkout to accept PaymentGateway in its constructor and store it in a private final field. Do not create BankGateway inside Checkout.",
+          "checks": [
+            "Declare private final PaymentGateway",
+            "Accept PaymentGateway in the constructor",
+            "Assign the constructor argument to the field",
+            "Do not call new BankGateway() inside Checkout"
+          ],
+          "explanation": "The caller, test, or Spring container now chooses the implementation. Checkout only knows the interface."
+        },
+        {
+          "prompt": "Which statement correctly distinguishes DI and DIP?",
+          "options": [
+            "DI supplies dependencies from outside; DIP concerns the direction of dependencies toward abstractions.",
+            "They mean exactly the same thing.",
+            "DIP requires Spring.",
+            "DI means using inheritance."
+          ],
+          "explanation": "Injecting a concrete BankGateway is DI, but the business code still depends on a technical implementation. Depending on PaymentGateway also applies DIP."
+        },
+        {
+          "prompt": "Put these steps in a safe order when applying DIP to Checkout.",
+          "items": [
+            "Write characterization tests for the current Checkout behavior.",
+            "Extract PaymentGateway from the methods Checkout uses.",
+            "Make BankGateway implement that interface.",
+            "Change Checkout to receive PaymentGateway through its constructor.",
+            "Switch tests to FakeGateway and run the full suite again."
+          ],
+          "explanation": "Establish the existing behavior first, then extract the interface and change construction while keeping tests passing."
+        }
+      ]
+    }
+  ]
+}

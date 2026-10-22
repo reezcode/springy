@@ -5,7 +5,7 @@
 - Entity mengikuti struktur database dan aturan domain.
 - DTO mengikuti kebutuhan klien dan harus stabil.
 
-Mengekspos entity langsung berisiko membocorkan field internal (misalnya `passwordHash`), membuat lazy loading terpicu saat serialisasi JSON, dan mengunci skema database ke kontrak publik.
+Mengekspos entity langsung berisiko membocorkan field internal (misalnya `passwordHash`), membuat lazy loading terpicu saat serialisasi JSON, dan mengunci schema database ke kontrak publik.
 
 ```java
 public record CreateOrderRequest(String product, int quantity) {}
@@ -19,7 +19,7 @@ public record OrderResponse(long id, String product, int quantity, String status
 
 ## Bean Validation
 
-Dependency `spring-boot-starter-validation` membawa Hibernate Validator, implementasi standar Jakarta Bean Validation. Constraint dideklarasikan sebagai anotasi:
+Dependency `spring-boot-starter-validation` membawa Hibernate Validator, implementasi standar Jakarta Bean Validation. Constraint dideklarasikan sebagai annotation:
 
 ```java
 import jakarta.validation.constraints.*;
@@ -30,7 +30,7 @@ public record CreateOrderRequest(
     @Email String customerEmail) {}
 ```
 
-| Anotasi | Memastikan |
+| Annotation | Memastikan |
 | --- | --- |
 | `@NotNull` | Nilai tidak null |
 | `@NotBlank` | String tidak null dan tidak hanya spasi |
@@ -52,8 +52,8 @@ ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest requ
 
 Jika gagal, Spring melempar `MethodArgumentNotValidException` dan merespons **400 Bad Request** sebelum service dipanggil. Di materi berikutnya kamu akan membentuk body error-nya agar memuat daftar field yang salah.
 
-> [!WARNING] Lupa @Valid adalah bug yang diam
-> Tanpa `@Valid`, anotasi `@NotBlank` di DTO hanyalah dekorasi. Tidak ada error, tidak ada peringatan, dan data tidak valid masuk ke service. Buktikan dengan test yang mengirim body tidak valid.
+> [!WARNING] Periksa @Valid pada parameter controller
+> Pada contoh ini, tanpa `@Valid`, constraint seperti `@NotBlank` di DTO tidak diperiksa saat request masuk ke controller. Data yang tidak valid bisa diteruskan ke service. Buktikan dengan test yang mengirim body tidak valid.
 
 ## Validasi format vs aturan bisnis
 
@@ -63,7 +63,7 @@ Jika gagal, Spring melempar `MethodArgumentNotValidException` dan merespons **40
 | `product` wajib, `quantity ≥ 1` | Stok cukup, order belum dibatalkan |
 | Bean Validation → 400 | Exception domain → 409/422 |
 
-Keduanya diperlukan. Bean Validation menyaring input buruk sejak pintu masuk; aturan bisnis tetap ditegakkan di service karena berlaku juga untuk jalur non-HTTP.
+Keduanya diperlukan. Bean Validation memeriksa input sebelum service dipanggil; aturan bisnis tetap ditegakkan di service karena berlaku juga untuk jalur non-HTTP.
 
 > [!TIP] Validasi di klien bukan pengganti
 > Form di frontend boleh memvalidasi untuk kenyamanan pengguna, tetapi server tetap harus memvalidasi. Request bisa dikirim langsung tanpa melewati frontend.

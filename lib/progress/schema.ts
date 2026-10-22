@@ -29,7 +29,8 @@ export const EMPTY_PROGRESS: Progress = {
 const LESSON_ID = /^m\d{1,2}-\d{1,2}$/;
 const EXERCISE_KEY = /^m\d{1,2}-\d{1,2}:[a-z0-9-]{1,40}$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
-const MAX_NOTE = 20_000;
+export const MAX_NOTE_LENGTH = 20_000;
+export const MAX_IMPORT_LENGTH = 2_000_000;
 
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
 
@@ -38,7 +39,7 @@ function pickNotes(value: unknown) {
   return Object.fromEntries(
     Object.entries(value)
       .filter((e): e is [string, string] => LESSON_ID.test(e[0]) && typeof e[1] === 'string' && e[1].trim() !== '')
-      .map(([k, v]) => [k, v.slice(0, MAX_NOTE)]),
+      .map(([k, v]) => [k, v.slice(0, MAX_NOTE_LENGTH)]),
   );
 }
 
@@ -59,7 +60,7 @@ export function sanitizeProgress(value: unknown): Progress | null {
     if (isRecord(value.exercises)) {
       for (const [key, rec] of Object.entries(value.exercises)) {
         if (!EXERCISE_KEY.test(key) || !isRecord(rec)) continue;
-        const attempts = Number(rec.attempts);
+        const attempts = typeof rec.attempts === 'number' ? rec.attempts : 0;
         exercises[key] = {
           passed: rec.passed === true,
           attempts: Number.isFinite(attempts) && attempts >= 0 ? Math.min(Math.floor(attempts), 1e6) : 0,
@@ -70,7 +71,7 @@ export function sanitizeProgress(value: unknown): Progress | null {
     const activity: Record<string, number> = {};
     if (isRecord(value.activity)) {
       for (const [day, n] of Object.entries(value.activity)) {
-        if (DAY.test(day) && typeof n === 'number' && Number.isFinite(n) && n > 0) activity[day] = Math.floor(n);
+        if (DAY.test(day) && typeof n === 'number' && Number.isFinite(n) && n > 0) activity[day] = Math.min(Math.floor(n), 1e6);
       }
     }
     return {

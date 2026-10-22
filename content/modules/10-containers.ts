@@ -5,9 +5,9 @@ const r = String.raw;
 const containers: ModuleInput = {
   slug: 'docker-podman',
   title: 'Docker & Podman',
-  subtitle: 'Dari JAR menjadi container yang bisa diulang.',
+  subtitle: 'Buat image dan jalankan aplikasi dengan Docker atau Podman.',
   description:
-    'Konsep image, container, dan registry; Dockerfile multi-stage yang berjalan sebagai non-root; network, volume, dan Compose dengan healthcheck; serta Podman rootless dan cara mendiagnosis masalah umum.',
+    'Pelajari image, container, dan registry, lalu tulis Dockerfile multi-stage yang berjalan sebagai non-root. Hubungkan aplikasi dan database lewat Compose, simpan data di volume, dan coba Podman rootless.',
   category: 'Operasional',
   hours: '6–9',
   tint: 'yellow',
@@ -47,7 +47,7 @@ const containers: ModuleInput = {
             { text: 'Container adalah virtual machine dengan kernel sendiri.', why: 'Container berbagi kernel host; isolasinya lewat namespace dan cgroup.' },
             { text: 'Image berubah setiap kali container ditulisi.', why: 'Image immutable; tulisan masuk ke layer milik container.' },
           ],
-          explanation: 'Image seperti class, container seperti object: satu cetak biru, banyak instans dengan state masing-masing.',
+          explanation: 'Image seperti class, container seperti object: satu blueprint, banyak instance dengan state masing-masing.',
         },
         {
           kind: 'choice',
@@ -123,7 +123,7 @@ ENTRYPOINT ["java", "-jar", "/app/app.jar"]`,
             { label: 'ENTRYPOINT bentuk exec (JSON array)', pattern: r`^ENTRYPOINT\s+\[\s*"java"\s*,\s*"-jar"\s*,\s*"[^"]+\.jar"\s*\]`, hint: 'Tulis `ENTRYPOINT ["java", "-jar", "/app/app.jar"]`.' },
             { label: 'Tidak menjalankan sebagai root', pattern: r`^USER\s+(root|0)\s*$`, absent: true, hint: 'Jangan set `USER root`.' },
           ],
-          explanation: 'Image runtime kini tidak membawa Maven, kode sumber, atau JDK lengkap. Bentuk exec menjadikan `java` PID 1 sehingga menerima SIGTERM untuk graceful shutdown.',
+          explanation: 'Image runtime kini tidak membawa Maven, source code, atau JDK lengkap. Bentuk exec menjadikan `java` PID 1 sehingga menerima SIGTERM untuk graceful shutdown.',
         },
         {
           kind: 'choice',
@@ -142,7 +142,7 @@ ENTRYPOINT ["java", "-jar", "/app/app.jar"]`,
     {
       slug: 'network-volume-compose',
       title: 'Network, volume & Compose',
-      summary: 'Container berkomunikasi lewat network dengan nama service sebagai hostname. Volume menyimpan data di luar siklus hidup container. Compose merangkai semuanya.',
+      summary: 'Container berkomunikasi lewat network dengan nama service sebagai hostname. Volume menyimpan data di luar lifecycle container. Compose merangkai semuanya.',
       minutes: 45,
       objectives: [
         'Menghubungkan container lewat network bernama.',
@@ -249,10 +249,10 @@ ENTRYPOINT ["java", "-jar", "/app/app.jar"]`,
           items: [
             'Cek container masih berjalan: `podman ps`.',
             'Baca log aplikasi: `podman logs order-lab`.',
-            'Periksa pemetaan port: `podman port order-lab`.',
+            'Periksa port mapping: `podman port order-lab`.',
             'Uji dari dalam container: `podman exec order-lab curl -s localhost:8080/actuator/health`.',
           ],
-          explanation: 'Mulai dari yang paling luas (apakah prosesnya hidup), lalu menyempit: log, pemetaan port, dan akhirnya pengujian dari dalam container untuk memisahkan masalah aplikasi dari masalah jaringan.',
+          explanation: 'Mulai dari yang paling luas (apakah prosesnya hidup), lalu menyempit: log, port mapping, dan akhirnya pengujian dari dalam container untuk memisahkan masalah aplikasi dari masalah jaringan.',
         },
         {
           kind: 'fill',

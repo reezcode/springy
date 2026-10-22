@@ -1,6 +1,6 @@
-## Skema juga butuh version control
+## Schema juga butuh version control
 
-Kode aplikasi disimpan di Git dengan riwayat yang jelas. Skema database butuh hal yang sama: setiap perubahan dicatat, berurutan, dan bisa diterapkan ke database mana pun untuk membawanya ke versi yang sama. Inilah fungsi alat migrasi seperti **Flyway** atau **Liquibase**.
+Kode aplikasi disimpan di Git dengan riwayat yang jelas. Schema database butuh hal yang sama: setiap perubahan dicatat, berurutan, dan bisa diterapkan ke database mana pun untuk membawanya ke versi yang sama. Inilah fungsi alat migrasi seperti **Flyway** atau **Liquibase**.
 
 ## Flyway di Spring Boot
 
@@ -28,7 +28,7 @@ Flyway mencatat migrasi yang sudah dijalankan beserta checksum-nya di tabel `fly
 > [!WARNING] Jangan ubah migrasi yang sudah berjalan
 > Mengedit `V1__...sql` setelah dijalankan di database lain membuat checksum tidak cocok dan Flyway menolak start. Perubahan berikutnya selalu ditulis sebagai migrasi baru.
 
-## Biarkan Flyway menjadi pemilik skema
+## Kelola perubahan schema dengan Flyway
 
 ```yaml
 spring:
@@ -40,9 +40,9 @@ spring:
 | `ddl-auto` | Perilaku | Kapan |
 | --- | --- | --- |
 | `none` | Tidak melakukan apa-apa | Produksi |
-| `validate` | Cek mapping cocok dengan skema, gagal start jika tidak | Produksi dengan migrasi |
-| `update` | Mengubah skema diam-diam, tidak pernah menghapus | Hindari |
-| `create` / `create-drop` | Membuat ulang skema, data hilang | Eksperimen singkat saja |
+| `validate` | Cek mapping cocok dengan schema, gagal start jika tidak | Produksi dengan migrasi |
+| `update` | Mengubah schema diam-diam, tidak pernah menghapus | Hindari |
+| `create` / `create-drop` | Membuat ulang schema, data hilang | Eksperimen singkat saja |
 
 `update` terlihat praktis, tetapi tidak meninggalkan riwayat, tidak bisa me-rename kolom, dan perilakunya bisa berbeda antardatabase.
 
@@ -60,10 +60,10 @@ alter table orders alter column status set default 'NEW';
 alter table orders alter column status set not null;
 ```
 
-Pola ini disebut **expand and contract**: tambahkan struktur baru, pindahkan data dan rilis aplikasi yang memakainya, baru kemudian hapus atau perketat struktur lama. Selama rolling deployment, versi aplikasi lama dan baru berjalan bersamaan, jadi skema harus cocok untuk keduanya.
+Pola ini disebut **expand and contract**: tambahkan struktur baru, pindahkan data dan rilis aplikasi yang memakainya, baru kemudian hapus atau perketat struktur lama. Selama rolling deployment, versi aplikasi lama dan baru berjalan bersamaan, jadi schema harus cocok untuk keduanya.
 
-> [!NOTE] Rollback aplikasi ≠ rollback skema
-> Mengembalikan aplikasi ke versi sebelumnya tidak membalik migrasi. Rancang migrasi agar versi aplikasi sebelumnya tetap bisa berjalan di atas skema baru.
+> [!NOTE] Rollback aplikasi ≠ rollback schema
+> Mengembalikan aplikasi ke versi sebelumnya tidak membalik migrasi. Rancang migrasi agar versi aplikasi sebelumnya tetap bisa berjalan di atas schema baru.
 
 ## Uji migrasi
 

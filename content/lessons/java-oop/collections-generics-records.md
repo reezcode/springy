@@ -12,7 +12,7 @@ Pilih berdasarkan cara kamu *mengakses* data:
 
 - Perlu urutan dan iterasi? `List`.
 - Perlu memastikan tidak ada duplikat, misalnya kumpulan SKU? `Set`.
-- Perlu mencari berdasarkan kunci, misalnya order berdasarkan ID? `Map`.
+- Perlu mencari berdasarkan key, misalnya order berdasarkan ID? `Map`.
 
 ## Deklarasikan dengan interface
 
@@ -25,7 +25,7 @@ Sisi kiri memakai interface, sisi kanan memilih implementasi. Jika nanti kamu bu
 
 ## Generics: tipe diperiksa saat kompilasi
 
-Generics (`<Long, Order>`) memberi tahu compiler tipe elemen di dalam collection. Kesalahan seperti memasukkan `String` ke `Map<Long, Order>` ditolak saat kompilasi, bukan meledak saat runtime.
+Generics (`<Long, Order>`) memberi tahu compiler tipe elemen di dalam collection. Kesalahan seperti memasukkan `String` ke `Map<Long, Order>` ditolak saat compile sehingga tidak perlu menunggu error saat runtime.
 
 ```java
 orders.put(1L, new Order(new BigDecimal("50000")));
@@ -52,11 +52,11 @@ findById(42)
 ```
 
 > [!TIP] Kapan memakai Optional
-> Pakai `Optional` sebagai **tipe kembalian** method pencarian. Hindari sebagai tipe field atau parameter; untuk itu cukup pastikan nilai tidak null sejak awal.
+> Pakai `Optional` sebagai **return type** method pencarian. Hindari sebagai tipe field atau parameter; untuk itu cukup pastikan nilai tidak null sejak awal.
 
 ## Record: data immutable yang ringkas
 
-`record` (Java 16+) adalah class khusus untuk membawa data. Compiler membuat constructor, accessor, `equals`, `hashCode`, dan `toString` secara otomatis. Semua komponennya `final`.
+`record` (Java 16+) adalah class khusus untuk membawa data. Compiler membuat constructor, accessor, `equals`, `hashCode`, dan `toString` secara otomatis. Semua komponennya `final`, tetapi object yang dirujuknya, seperti List, masih bisa berubah. Gunakan defensive copy jika perlu menjaga isinya tetap immutable.
 
 ```java
 public record OrderLine(String product, int quantity) {

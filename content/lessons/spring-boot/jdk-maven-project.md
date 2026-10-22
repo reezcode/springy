@@ -1,6 +1,6 @@
 ## Menyiapkan JDK
 
-Spring Boot 3.x membutuhkan minimal **Java 17**. Jalur ini memakai **Java 21**, versi LTS dengan fitur seperti record, pattern matching, dan virtual thread. Distribusi seperti Eclipse Temurin bisa dipasang lewat package manager atau SDKMAN.
+Spring Boot 3.x membutuhkan minimal **Java 17**. Learning path ini memakai **Java 21**, versi LTS dengan fitur seperti record, pattern matching, dan virtual thread. Distribusi seperti Eclipse Temurin bisa dipasang lewat package manager atau SDKMAN.
 
 ```shell
 java -version
@@ -8,7 +8,7 @@ java -version
 ```
 
 > [!NOTE] Spring Boot 3 atau 4?
-> Contoh di jalur ini memakai gaya Spring Boot 3.x yang paling banyak dipakai. Jika kamu memilih rilis yang lebih baru, cek halaman *System Requirements* dan catatan migrasinya. Jangan mencampur contoh dari dua versi mayor tanpa memeriksa perbedaannya.
+> Contoh di learning path ini mengikuti Spring Boot 3.x. Jika kamu memilih rilis yang lebih baru, cek halaman *System Requirements* dan catatan migrasinya. Jangan mencampur contoh dari dua versi mayor tanpa memeriksa perbedaannya.
 
 ## Membuat project dengan Spring Initializr
 
@@ -64,14 +64,14 @@ public class OrderServiceApplication {
 
 1. `@Configuration`: class ini boleh mendefinisikan bean.
 2. `@EnableAutoConfiguration`: Spring Boot mengonfigurasi komponen berdasarkan dependency yang ada di classpath.
-3. `@ComponentScan`: mencari class beranotasi di package ini dan sub-package-nya.
+3. `@ComponentScan`: mencari class dengan annotation di package ini dan sub-package-nya.
 
 > [!WARNING] Letak class utama
 > Simpan class utama di package teratas (`com.example.orderservice`). Component di luar package itu tidak akan ditemukan oleh component scan.
 
 ## Maven Wrapper dan lifecycle
 
-Gunakan `./mvnw` (atau `mvnw.cmd` di Windows), bukan `mvn` global. Wrapper mengunduh versi Maven yang tercatat di project sehingga build sama di laptop, rekan kerja, dan CI.
+Gunakan `./mvnw` (atau `mvnw.cmd` di Windows), bukan `mvn` global. Wrapper mengunduh versi Maven yang tercatat di project sehingga versi Maven konsisten di laptopmu, laptop rekan kerja, dan CI.
 
 ```shell
 ./mvnw test               # compile + jalankan test
@@ -85,7 +85,7 @@ Maven bekerja dengan **lifecycle**. Menjalankan satu fase juga menjalankan semua
 | Fase | Yang terjadi |
 | --- | --- |
 | `validate` | Memeriksa struktur project |
-| `compile` | Mengompilasi kode sumber |
+| `compile` | Mengompilasi source code |
 | `test` | Menjalankan unit test |
 | `package` | Membuat JAR |
 | `verify` | Menjalankan pemeriksaan tambahan, misalnya integration test |

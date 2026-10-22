@@ -5,9 +5,9 @@ const r = String.raw;
 const solid: ModuleInput = {
   slug: 'solid',
   title: 'SOLID & desain kode',
-  subtitle: 'Kode yang lebih mudah diubah dan diuji.',
+  subtitle: 'Latihan menyusun kode yang mudah diubah.',
   description:
-    'Lima prinsip desain dari Robert C. Martin untuk mengelola perubahan: SRP, OCP, LSP, ISP, dan DIP. Fokusnya bukan menghafal singkatan, tetapi mengenali bau kode dan memilih titik ekstensi yang memang dibutuhkan.',
+    'Pelajari SRP, OCP, LSP, ISP, dan DIP lewat contoh kode yang perlu diubah atau sulit diuji. Kamu akan berlatih mengenali code smell dan memilih kapan perlu memakai interface atau memisahkan class.',
   category: 'Fondasi',
   hours: '4–6',
   tint: 'lavender',
@@ -43,7 +43,7 @@ const solid: ModuleInput = {
             { text: 'Maksimal 100 baris kode.', why: 'Panjang kode bukan ukuran SRP.' },
             { text: 'Satu field per class.', why: 'Jumlah field tidak menentukan tanggung jawab.' },
           ],
-          explanation: 'SRP: modul harus bertanggung jawab kepada satu aktor. Jika tim finance dan tim marketing sama-sama bisa memaksa perubahan pada class yang sama, class itu punya dua alasan berubah.',
+          explanation: 'SRP: modul harus bertanggung jawab kepada satu aktor. Jika tim finance dan tim marketing sama-sama membutuhkan perubahan pada class yang sama, class itu punya dua alasan berubah.',
         },
         {
           kind: 'choice',
@@ -68,10 +68,10 @@ const solid: ModuleInput = {
       objectives: [
         'Mengganti rantai `if/else` per jenis dengan polymorphism.',
         'Menambah variasi baru sebagai implementasi baru.',
-        'Menghindari abstraksi prematur.',
+        'Menghindari premature abstraction.',
       ],
       keyPoints: [
-        'Titik ekstensi berupa interface membuat variasi baru cukup ditambah sebagai class baru.',
+        'Extension point berupa interface membuat variasi baru cukup ditambah sebagai class baru.',
         'Rantai `if (type == ...)` yang terus bertambah adalah tanda OCP dilanggar.',
         'Buat abstraksi untuk variasi yang *sudah* nyata, bukan untuk kemungkinan yang dibayangkan.',
       ],
@@ -128,18 +128,18 @@ class PromoDiscount implements DiscountPolicy {
           prompt: 'Tim hanya punya satu jenis pengiriman dan belum ada rencana menambah. Apa langkah yang paling bijak?',
           options: [
             { text: 'Tulis implementasi langsung yang sederhana; ekstrak interface saat variasi kedua benar-benar muncul.', correct: true },
-            { text: 'Buat interface, factory, dan plugin loader sekarang untuk berjaga-jaga.', why: 'Abstraksi spekulatif menambah kompleksitas tanpa manfaat nyata.' },
+            { text: 'Buat interface, factory, dan plugin loader sekarang untuk berjaga-jaga.', why: 'Speculative abstraction menambah kompleksitas tanpa manfaat nyata.' },
             { text: 'Gunakan inheritance tiga level agar fleksibel.', why: 'Hierarki dalam justru membuat perubahan lebih sulit.' },
             { text: 'Salin kode setiap kali butuh variasi.', why: 'Duplikasi melanggar prinsip DRY dan menyulitkan perubahan.' },
           ],
-          explanation: 'OCP bukan alasan membuat abstraksi untuk segala hal. Titik ekstensi dibuat ketika variasi sudah terlihat; refactor ke interface saat itu murah.',
+          explanation: 'OCP bukan alasan membuat abstraksi untuk segala hal. Extension point dibuat ketika variasi sudah terlihat; gunakan interface setelah kebutuhan variasinya jelas.',
         },
       ],
     },
     {
       slug: 'liskov-interface-segregation',
       title: 'Liskov Substitution & Interface Segregation',
-      summary: 'Implementasi harus bisa menggantikan kontraknya tanpa kejutan, dan klien hanya bergantung pada operasi yang benar-benar dipakai.',
+      summary: 'Setiap implementasi harus memenuhi kontrak yang sama. Pisahkan interface agar klien cukup bergantung pada method yang dipakainya.',
       minutes: 35,
       objectives: [
         'Mengenali pelanggaran LSP seperti `UnsupportedOperationException`.',
@@ -162,7 +162,7 @@ class PromoDiscount implements DiscountPolicy {
           id: 'lsp-violation',
           prompt: '`ReadOnlyOrderRepository implements OrderRepository` melempar `UnsupportedOperationException` di `save()`. Prinsip mana yang paling jelas dilanggar?',
           options: [
-            { text: 'Liskov Substitution: pemanggil `OrderRepository` tidak bisa memakainya tanpa kejutan.', correct: true },
+            { text: 'Liskov Substitution: pemanggil `OrderRepository` tidak mendapat perilaku yang dijanjikan kontraknya.', correct: true },
             { text: 'Single Responsibility.', why: 'Class itu hanya punya satu tanggung jawab: membaca.' },
             { text: 'Open/Closed.', why: 'Masalahnya bukan cara menambah variasi.' },
             { text: 'Tidak ada pelanggaran, ini pola standar.', why: 'Kode yang menerima `OrderRepository` akan gagal saat runtime.' },
@@ -198,12 +198,12 @@ interface OrderWriter {
     {
       slug: 'dependency-inversion',
       title: 'Dependency Inversion Principle',
-      summary: 'Kebijakan bisnis bergantung pada abstraksi; detail teknis mengimplementasikan abstraksi itu.',
+      summary: 'Aturan bisnis memakai interface yang sesuai kebutuhannya. Implementasi database, pembayaran, atau HTTP mengikuti interface tersebut.',
       minutes: 35,
       objectives: [
         'Membalik arah dependency dari detail ke abstraksi.',
         'Membedakan DIP (prinsip desain) dan DI (mekanisme).',
-        'Menyuntikkan dependency lewat constructor.',
+        'Meng-inject dependency lewat constructor.',
       ],
       keyPoints: [
         'Modul tingkat tinggi (aturan bisnis) tidak bergantung pada modul tingkat rendah (database, HTTP); keduanya bergantung pada abstraksi.',
@@ -257,11 +257,11 @@ interface OrderWriter {
           prompt: 'Pernyataan mana yang benar tentang DI dan DIP?',
           options: [
             { text: 'DI adalah mekanisme menyediakan dependency dari luar; DIP adalah prinsip tentang arah dependency ke abstraksi.', correct: true },
-            { text: 'Keduanya sama persis, hanya singkatan berbeda.', why: 'DI bisa dipakai tanpa DIP, misalnya menyuntikkan class konkret.' },
+            { text: 'Keduanya sama persis, hanya singkatan berbeda.', why: 'DI bisa dipakai tanpa DIP, misalnya meng-inject class konkret.' },
             { text: 'DIP hanya bisa diterapkan dengan Spring.', why: 'DIP adalah prinsip desain; bisa diterapkan dengan Java biasa.' },
             { text: 'DI berarti memakai inheritance.', why: 'DI tidak terkait inheritance.' },
           ],
-          explanation: 'Menyuntikkan `BankGateway` konkret tetap DI, tetapi belum DIP. DIP tercapai ketika Checkout bergantung pada `PaymentGateway` yang dimiliki sisi bisnis.',
+          explanation: 'Meng-inject `BankGateway` konkret tetap DI, tetapi belum DIP. DIP tercapai ketika Checkout bergantung pada `PaymentGateway` yang dimiliki sisi bisnis.',
         },
         {
           kind: 'order',

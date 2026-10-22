@@ -48,11 +48,11 @@ oc rollout undo deployment/order        # kembali ke revisi sebelumnya
 ```
 
 > [!WARNING] Rollback aplikasi tidak membalik migrasi database
-> `oc rollout undo` hanya mengganti image dan konfigurasi pod. Jika versi baru sudah menjalankan migrasi Flyway, skema tetap pada versi baru. Itulah alasan migrasi dirancang kompatibel mundur (expand and contract).
+> `oc rollout undo` hanya mengganti image dan konfigurasi pod. Jika versi baru sudah menjalankan migrasi Flyway, schema tetap pada versi baru. Itulah alasan migrasi dirancang tetap mendukung versi aplikasi sebelumnya (expand and contract).
 
 ## Service
 
-Pemanggil tidak boleh bergantung pada IP pod yang berubah-ubah. **Service** memberi alamat stabil berupa IP virtual dan nama DNS, lalu meneruskan trafik ke pod yang cocok dengan selector **dan** siap (lulus readiness).
+Pemanggil tidak boleh bergantung pada IP pod yang berubah-ubah. **Service** memberi alamat stabil berupa IP virtual dan nama DNS, lalu meneruskan traffic ke pod yang cocok dengan selector **dan** siap (lulus readiness).
 
 ```yaml title="service.yaml"
 apiVersion: v1
@@ -77,9 +77,9 @@ oc expose deployment/order --port=8080 --target-port=8080
 oc get pods,svc
 ```
 
-## Konfigurasi dan rahasia
+## Konfigurasi dan secret
 
-Jangan memasukkan konfigurasi lingkungan ke image. Gunakan **ConfigMap** untuk konfigurasi biasa dan **Secret** untuk kredensial, lalu suntikkan sebagai environment variable:
+Jangan memasukkan konfigurasi lingkungan ke image. Gunakan **ConfigMap** untuk konfigurasi biasa dan **Secret** untuk kredensial, lalu inject sebagai environment variable:
 
 ```shell
 oc create configmap order-config --from-literal=INVENTORY_BASEURL=http://inventory:8080

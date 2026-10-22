@@ -5,9 +5,9 @@ const r = String.raw;
 const springBoot: ModuleInput = {
   slug: 'spring-boot',
   title: 'Spring Boot essentials',
-  subtitle: 'Kenali apa yang dikerjakan framework.',
+  subtitle: 'Buat project dan pahami cara Spring mengelolanya.',
   description:
-    'Membuat project pertama dengan Spring Initializr dan Maven Wrapper, memahami IoC container dan constructor injection, menyusun controller–service–repository, serta mengatur konfigurasi lewat profile dan environment variable.',
+    'Buat project dengan Spring Initializr, jalankan lewat Maven Wrapper, lalu pelajari cara Spring membuat bean dan menghubungkan dependency. Setelah itu, susun controller, service, dan repository serta atur konfigurasi per environment.',
   category: 'Spring Boot',
   hours: '5–7',
   tint: 'mint',
@@ -24,7 +24,7 @@ const springBoot: ModuleInput = {
         'Menjalankan test dan aplikasi dengan `./mvnw`.',
       ],
       keyPoints: [
-        'Spring Boot 3.x membutuhkan minimal Java 17; jalur ini memakai Java 21 (LTS).',
+        'Spring Boot 3.x membutuhkan minimal Java 17; learning path ini memakai Java 21 (LTS).',
         'Maven Wrapper (`mvnw`) mengunduh versi Maven yang dikunci project, sehingga build sama di semua mesin.',
         'Starter seperti `spring-boot-starter-web` mengumpulkan dependency yang biasa dipakai bersama.',
         '`@SpringBootApplication` mengaktifkan konfigurasi otomatis dan component scanning dari package class tersebut.',
@@ -60,7 +60,7 @@ const springBoot: ModuleInput = {
         {
           kind: 'fill',
           id: 'boot-annotation',
-          prompt: 'Anotasi apa yang dipasang pada class utama aplikasi Spring Boot?',
+          prompt: 'Annotation apa yang dipasang pada class utama aplikasi Spring Boot?',
           context: `@___
 public class OrderApplication {
   public static void main(String[] args) {
@@ -88,7 +88,7 @@ public class OrderApplication {
         'IoC: framework yang membuat object dan memasang dependency-nya, bukan kode kita.',
         '`@Component`, `@Service`, `@Repository`, `@RestController` mendaftarkan class sebagai bean lewat component scanning.',
         'Class dengan satu constructor tidak butuh `@Autowired`; Spring memakainya otomatis.',
-        'Bean default bersifat singleton: satu instans dipakai bersama oleh semua request, jadi jangan simpan state per request di field.',
+        'Bean default bersifat singleton: satu instance dipakai bersama oleh semua request, jadi jangan simpan state per request di field.',
         'Circular dependency adalah tanda desain perlu ditinjau ulang.',
       ],
       practice: {
@@ -140,19 +140,19 @@ public class OrderService {
             { text: 'Aplikasi gagal start.', why: 'Aplikasi tetap start; bug muncul saat ada request bersamaan.' },
             { text: 'Field otomatis dibuat thread-safe oleh Spring.', why: 'Spring tidak membuat field menjadi thread-safe.' },
           ],
-          explanation: 'Simpan state per request di variabel lokal atau parameter method. Field bean sebaiknya hanya berisi dependency yang immutable.',
+          explanation: 'Simpan state per request di local variable atau parameter method. Field bean sebaiknya hanya berisi dependency yang immutable.',
         },
       ],
     },
     {
       slug: 'controller-service-repository',
       title: 'Controller, service & repository',
-      summary: 'Controller menerima HTTP, service berisi alur bisnis, repository mengurus akses data. Pembagian ini menjaga setiap lapisan fokus.',
+      summary: 'Controller menerima HTTP, service berisi alur bisnis, repository mengurus akses data. Pembagian ini menjaga setiap layer fokus.',
       minutes: 40,
       objectives: [
         'Membuat endpoint REST pertama dengan `@RestController`.',
         'Memindahkan logika bisnis dari controller ke service.',
-        'Memahami batas tanggung jawab tiap lapisan.',
+        'Memahami batas tanggung jawab tiap layer.',
       ],
       keyPoints: [
         'Controller: terjemahkan HTTP ke panggilan service dan hasilnya kembali ke HTTP. Tidak ada aturan bisnis.',
@@ -174,7 +174,7 @@ public class OrderService {
           id: 'first-controller',
           prompt: 'Lengkapi controller agar `GET /greetings/{name}` mengembalikan hasil `service.greet(name)`.',
           language: 'java',
-          starter: `// TODO: anotasi controller
+          starter: `// TODO: annotation controller
 public class GreetingController {
   private final GreetingService service;
 
@@ -227,18 +227,18 @@ public class GreetingController {
       objectives: [
         'Membaca properti dengan `@ConfigurationProperties`.',
         'Memahami urutan prioritas property source.',
-        'Memakai profile untuk perbedaan antarlingkungan tanpa menyimpan rahasia di repo.',
+        'Memakai profile untuk perbedaan antarlingkungan tanpa menyimpan secret di repo.',
       ],
       keyPoints: [
         'Environment variable dan argumen command line mengalahkan nilai di `application.yml`.',
         '`SERVER_PORT=9090` otomatis dipetakan ke `server.port` lewat *relaxed binding*.',
         '`@ConfigurationProperties` memberi konfigurasi bertipe dan tervalidasi, lebih baik daripada banyak `@Value`.',
         'Profile (`application-dev.yml`) aktif dengan `spring.profiles.active`.',
-        'Password dan token tidak boleh di-commit; suntikkan lewat environment atau secret store.',
+        'Password dan token tidak boleh di-commit; inject lewat environment atau secret store.',
       ],
       practice: {
         task: 'Jalankan JAR yang sama dua kali dengan port berbeda: sekali lewat environment variable, sekali lewat argumen.',
-        proof: 'Kedua instans berjalan berdampingan tanpa build ulang.',
+        proof: 'Kedua instance berjalan berdampingan tanpa build ulang.',
       },
       refs: [{ source: 'config', note: 'Urutan PropertySource dan relaxed binding.' }],
       exercises: [

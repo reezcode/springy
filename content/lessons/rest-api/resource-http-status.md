@@ -26,7 +26,7 @@ Gunakan bentuk jamak untuk koleksi (`/orders`) dan ID untuk elemen (`/orders/{id
 > [!WARNING] GET tidak boleh mengubah data
 > Endpoint seperti `GET /orders/42/cancel` berbahaya: prefetch browser, crawler, atau retry otomatis bisa membatalkan order tanpa sengaja.
 
-## Status code yang jujur
+## Memilih HTTP status code
 
 | Status | Arti | Contoh |
 | --- | --- | --- |

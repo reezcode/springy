@@ -1,4 +1,4 @@
-import { EMPTY_PROGRESS, exerciseKey, localDay, mergeProgress, sanitizeProgress, type Progress } from './schema.ts';
+import { MAX_NOTE_LENGTH, MAX_IMPORT_LENGTH, EMPTY_PROGRESS, exerciseKey, localDay, mergeProgress, sanitizeProgress, type Progress } from './schema.ts';
 
 /**
  * Browser-only external store backed by localStorage, consumed through
@@ -15,7 +15,7 @@ const listeners = new Set<() => void>();
 function load(): Progress {
   try {
     const raw = localStorage.getItem(KEY) ?? localStorage.getItem(LEGACY_KEY);
-    return (raw && sanitizeProgress(JSON.parse(raw))) || EMPTY_PROGRESS;
+    return (raw && raw.length <= MAX_IMPORT_LENGTH && sanitizeProgress(JSON.parse(raw))) || EMPTY_PROGRESS;
   } catch {
     persistError = true;
     return EMPTY_PROGRESS;
@@ -94,7 +94,7 @@ export const progressActions = {
   setNote(lessonId: string, text: string) {
     update((p) => {
       const notes = { ...p.notes };
-      if (text.trim()) notes[lessonId] = text;
+      if (text.trim()) notes[lessonId] = text.slice(0, MAX_NOTE_LENGTH);
       else delete notes[lessonId];
       return { ...p, notes };
     });
@@ -113,6 +113,7 @@ export const progressActions = {
   },
   /** Returns false when the file is not valid Springpath progress. */
   importJson(text: string): boolean {
+    if (text.length > MAX_IMPORT_LENGTH) return false;
     let incoming: Progress | null = null;
     try {
       incoming = sanitizeProgress(JSON.parse(text));

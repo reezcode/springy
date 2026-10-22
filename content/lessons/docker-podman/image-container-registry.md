@@ -1,6 +1,6 @@
 ## Masalah yang diselesaikan container
 
-"Di laptop saya jalan" terjadi karena aplikasi bergantung pada banyak hal di luar kodenya: versi JDK, library sistem, variabel environment, struktur folder. **Container** membungkus aplikasi beserta semua kebutuhannya menjadi satu paket yang berjalan sama di laptop, CI, dan server.
+"Di laptop saya jalan" terjadi karena aplikasi bergantung pada banyak hal di luar kodenya: versi JDK, library sistem, environment variable, struktur folder. **Container** membungkus aplikasi beserta semua kebutuhannya menjadi satu paket yang berjalan sama di laptop, CI, dan server.
 
 ## Image
 

@@ -1,6 +1,6 @@
 ## Class dan object
 
-**Class** adalah cetak biru: ia mendeklarasikan *state* (field) dan *perilaku* (method). **Object** adalah instans nyata dari class tersebut, dibuat dengan `new`, dan masing-masing punya nilai field sendiri.
+**Class** adalah blueprint: ia mendeklarasikan *state* (field) dan *perilaku* (method). **Object** adalah instance dari class tersebut, dibuat dengan `new`, dan masing-masing punya nilai field sendiri.
 
 ```java title="Order.java"
 public class Order {
@@ -23,9 +23,9 @@ Order b = new Order("B-7");  // object kedua, state terpisah
 
 Saat `a.addItem(...)` dipanggil, hanya total milik `a` yang berubah. Inilah alasan kita memodelkan konsep bisnis sebagai object: setiap order membawa datanya sendiri bersama aturan yang berlaku padanya.
 
-## Constructor menjaga object lahir dalam keadaan valid
+## Validasi input di constructor
 
-Constructor dijalankan sekali ketika object dibuat. Tempat ini ideal untuk memeriksa **invariant**, yaitu aturan yang harus selalu benar selama object hidup. Untuk order, salah satu invariant-nya adalah total tidak boleh negatif.
+Constructor dijalankan sekali ketika object dibuat. Tempat ini ideal untuk memeriksa **invariant**, yaitu aturan yang harus selalu benar selama object digunakan. Untuk order, salah satu invariant-nya adalah total tidak boleh negatif.
 
 ```java
 public Order(BigDecimal total) {
@@ -36,7 +36,7 @@ public Order(BigDecimal total) {
 }
 ```
 
-Jika validasi gagal, object tidak pernah terbentuk. Kode lain tidak perlu terus-menerus bertanya "apakah total ini valid?" karena jawabannya sudah dijamin.
+Jika validasi gagal, constructor melempar exception. Kode pemanggil hanya mendapat object setelah input lolos pemeriksaan.
 
 > [!TIP] Gunakan BigDecimal untuk uang
 > `double` menyimpan angka biner sehingga `0.1 + 0.2` tidak tepat `0.3`. Untuk nilai uang, pakai `BigDecimal` yang dibuat dari `String` (`new BigDecimal("0.10")`) dan tentukan aturan pembulatan secara eksplisit.
@@ -73,7 +73,7 @@ Mulailah dari yang paling tertutup (`private`), lalu buka hanya bila memang dibu
 
 ## Immutability dengan `final`
 
-Field `final` hanya bisa di-assign sekali, biasanya di constructor. Object yang semua field-nya `final` dan tidak punya setter disebut **immutable**. Object immutable lebih mudah dipahami, aman dibagi antar-thread, dan tidak berubah diam-diam setelah diberikan ke kode lain.
+Field `final` hanya bisa di-assign sekali, biasanya di constructor. Untuk membuat object **immutable**, field juga harus menyimpan nilai immutable atau dilindungi dengan defensive copy. Field `final` saja belum mencegah isi collection berubah. Object immutable lebih mudah dipahami, aman dibagi antar-thread, dan tidak berubah diam-diam setelah diberikan ke kode lain.
 
 Untuk perubahan, object immutable mengembalikan object baru:
 

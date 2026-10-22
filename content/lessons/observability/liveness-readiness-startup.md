@@ -1,15 +1,15 @@
-## Platform perlu tahu dua hal berbeda
+## Readiness, liveness, dan startup probe
 
-Platform container seperti Kubernetes dan OpenShift terus bertanya kepada setiap instans aplikasi:
+Kubernetes dan OpenShift memakai probe untuk menentukan tindakan terhadap aplikasi:
 
-1. **Apakah kamu siap menerima trafik?** Jika tidak, jangan kirimi request untuk sementara.
-2. **Apakah kamu masih hidup dengan sehat?** Jika tidak, matikan dan jalankan ulang.
+1. **Readiness:** apakah aplikasi siap menerima traffic? Jika belum, hentikan pengiriman request ke pod untuk sementara.
+2. **Liveness:** apakah proses masih berfungsi? Jika tidak, restart container.
 
 Keduanya sering dicampur, padahal tindakan yang diambil sangat berbeda.
 
 | Probe | Pertanyaan | Jika gagal |
 | --- | --- | --- |
-| **Readiness** | Siap melayani request? | Pod dikeluarkan dari endpoint Service (tidak menerima trafik) |
+| **Readiness** | Siap melayani request? | Pod dikeluarkan dari endpoint Service (tidak menerima traffic) |
 | **Liveness** | Proses masih berfungsi? | Container **di-restart** |
 | **Startup** | Sudah selesai start? | Liveness/readiness ditunda; jika melewati batas, container di-restart |
 
@@ -67,7 +67,7 @@ containers:
 ## Jangan taruh dependency bersama di liveness
 
 > [!WARNING] Restart massal
-> Jika liveness ikut memeriksa database, maka saat database down **semua** pod gagal liveness dan di-restart bersamaan, berulang kali. Restart tidak memperbaiki database, tetapi menambah beban saat database pulih karena semua instans start bersamaan dan membuka koneksi baru. Liveness sebaiknya hanya memeriksa kondisi internal proses, misalnya deadlock yang tidak bisa pulih.
+> Jika liveness ikut memeriksa database, maka saat database down **semua** pod gagal liveness dan di-restart bersamaan, berulang kali. Restart tidak memperbaiki database, tetapi menambah beban saat database pulih karena semua instance start bersamaan dan membuka koneksi baru. Liveness sebaiknya hanya memeriksa kondisi internal proses, misalnya deadlock yang tidak bisa pulih.
 
 Untuk readiness, memasukkan dependency eksternal pun perlu pertimbangan: jika semua pod tidak siap karena database down, Service tidak punya endpoint dan pengguna mendapat error koneksi, bukan respons 503 yang informatif. Sering kali lebih baik aplikasi tetap siap dan merespons error yang jelas untuk fitur yang terdampak.
 

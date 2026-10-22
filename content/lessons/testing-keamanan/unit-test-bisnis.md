@@ -1,6 +1,6 @@
 ## Piramida test
 
-Tidak semua test sama mahalnya. Kombinasi yang sehat:
+Setiap jenis test punya cakupan dan waktu eksekusi berbeda. Susunan yang umum dipakai:
 
 | Jenis | Menguji | Kecepatan | Jumlah |
 | --- | --- | --- | --- |
@@ -8,7 +8,7 @@ Tidak semua test sama mahalnya. Kombinasi yang sehat:
 | Integration test | Beberapa komponen + infrastruktur nyata (DB, broker) | Detik | Sedang |
 | End-to-end | Seluruh sistem lewat API/UI | Menit | Sedikit |
 
-Modul ini dimulai dari dasar piramida: unit test yang cepat sehingga kamu berani refactor.
+Modul ini dimulai dari dasar piramida: unit test untuk memeriksa aturan bisnis sebelum dan sesudah refactor.
 
 ## JUnit 5 dan Arrange–Act–Assert
 
@@ -54,7 +54,7 @@ Beri nama test sesuai perilaku (`memberGetsTenPercentDiscount`), bukan nama meth
 | --- | --- | --- |
 | Fake | Implementasi sederhana yang berfungsi (repository in-memory) | Dependency milikmu sendiri |
 | Stub | Mengembalikan jawaban yang sudah ditentukan | Mengatur skenario |
-| Mock | Merekam interaksi untuk diverifikasi | Memastikan efek samping terjadi |
+| Mock | Merekam interaksi untuk diverifikasi | Memastikan side effect terjadi |
 
 Dengan Mockito:
 
@@ -73,7 +73,7 @@ verify(gateway).charge(50_000);
 
 ## Test yang deterministik
 
-Test yang kadang lulus kadang gagal (*flaky*) lebih buruk daripada tidak ada test, karena tim belajar untuk mengabaikannya. Sumber umum ketidakpastian dan solusinya:
+Test yang kadang lulus dan kadang gagal tanpa perubahan kode disebut *flaky test*. Hasil seperti ini menyulitkan tim membedakan bug dari masalah pada test. Sumber umum ketidakpastian dan solusinya:
 
 | Sumber | Solusi |
 | --- | --- |

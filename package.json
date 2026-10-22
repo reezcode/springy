@@ -1,26 +1,34 @@
 {
-  "name": "springpath",
+  "name": "springy",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "engines": {
     "node": ">=22.13.0"
   },
-  "packageManager": "pnpm@11.25.0",
+  "packageManager": "npm@10.9.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build --webpack",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "node --experimental-strip-types --no-warnings --test tests/*.test.mjs",
-    "check": "npm run test && npm run typecheck && npm run build"
+    "check": "npm run test && npm run typecheck && npm run build",
+    "generate:english": "node --experimental-strip-types --no-warnings scripts/generate-english.mjs",
+    "predev": "npm run generate:english",
+    "prebuild": "npm run generate:english",
+    "pretypecheck": "npm run generate:english",
+    "pretest": "npm run generate:english",
+    "postbuild": "node scripts/security-headers.mjs",
+    "test:browser": "playwright test"
   },
   "dependencies": {
-    "next": "16.3.4",
+    "lucide-react": "^1.31.0",
+    "next": "16.3.8",
     "react": "19.2.6",
-    "react-dom": "19.2.6",
-    "lucide-react": "^1.31.0"
+    "react-dom": "19.2.6"
   },
   "devDependencies": {
+    "@playwright/test": "1.64.1",
     "@tailwindcss/postcss": "4.2.1",
     "@types/node": "22.19.19",
     "@types/react": "19.2.14",

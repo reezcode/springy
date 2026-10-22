@@ -1,6 +1,6 @@
 ## Definisi selesai
 
-Proyek tidak selesai ketika kode terakhir di-commit. Proyek selesai ketika **orang lain bisa menjalankan, menguji, mengamati, dan memulihkannya tanpa bantuanmu**. Itulah standar yang dipakai tim profesional saat menyerahkan sistem ke tim lain atau ke on-call.
+Sebelum menyerahkan project, pastikan orang lain bisa menjalankan aplikasi, menjalankan test, memeriksa error, dan melakukan recovery dengan mengikuti README. Gunakan checklist di bawah untuk memeriksa apa yang masih perlu dilengkapi.
 
 ## Struktur README
 
@@ -37,9 +37,9 @@ Apa yang belum dikerjakan dan risikonya.
 Tautan ke docs/adr/.
 ```
 
-## Keterbatasan yang jujur
+## Known limitations
 
-Setiap sistem punya keterbatasan. Menuliskannya menunjukkan pemahaman. Contoh:
+Setiap sistem punya keterbatasan. Catat dampak dan rencana penanganannya. Contoh:
 
 | Keterbatasan | Dampak | Rencana |
 | --- | --- | --- |
@@ -53,15 +53,15 @@ Minta seseorang (rekan, mentor, atau dirimu sendiri di mesin/VM baru) mengikuti 
 
 ## Checklist review
 
-- [ ] Batas service dan ownership data sesuai desain tertulis.
-- [ ] Semua endpoint memvalidasi input dan menegakkan otorisasi.
+- [ ] Service boundary dan ownership data sesuai desain tertulis.
+- [ ] Semua endpoint memvalidasi input dan menegakkan authorization.
 - [ ] Panggilan antarservice punya timeout; retry hanya untuk operasi aman.
 - [ ] Consumer idempotent dan ada dead-letter queue.
 - [ ] Migrasi berjalan di database kosong dan versi sebelumnya.
-- [ ] Unit test, integration test, dan test jalur gagal lulus di CI.
-- [ ] Image non-root, tanpa rahasia, dengan tag yang bisa dilacak.
+- [ ] Unit test, integration test, dan test skenario gagal lulus di CI.
+- [ ] Image non-root, tanpa secret, dengan tag yang bisa dilacak.
 - [ ] Health, metrics, dan trace tersedia; log tanpa data sensitif.
 - [ ] README diuji oleh orang lain di lingkungan bersih.
 
 > [!TIP] Setelah capstone
-> Pilih satu area untuk didalami: event streaming dengan Kafka, Kubernetes/OpenShift lebih lanjut (Helm, GitOps), keamanan aplikasi, atau performa JVM. Fondasi dari jalur ini membuat topik lanjutan jauh lebih mudah dipahami.
+> Pilih satu area untuk didalami: event streaming dengan Kafka, Kubernetes/OpenShift lebih lanjut (Helm, GitOps), keamanan aplikasi, atau performa JVM. Fondasi dari learning path ini membuat topik lanjutan jauh lebih mudah dipahami.

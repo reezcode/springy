@@ -1,12 +1,12 @@
 ## Apa itu microservices?
 
-James Lewis dan Martin Fowler (2014) menggambarkan gaya arsitektur microservices sebagai pendekatan membangun satu aplikasi dari **kumpulan service kecil**, masing-masing berjalan di prosesnya sendiri dan berkomunikasi lewat mekanisme ringan seperti HTTP. Service dibangun di sekitar **kemampuan bisnis** dan bisa **di-deploy secara independen** dengan otomasi.
+James Lewis dan Martin Fowler (2014) menggambarkan gaya arsitektur microservices sebagai pendekatan membangun satu aplikasi dari **kumpulan service kecil**, masing-masing berjalan di prosesnya sendiri dan berkomunikasi lewat mekanisme ringan seperti HTTP. Service dibangun di sekitar **business capability** dan bisa **di-deploy secara independen** dengan otomasi.
 
 Beberapa karakteristik yang mereka uraikan:
 
 - Komponen sebagai service, bukan library.
-- Diorganisasi berdasarkan kemampuan bisnis, bukan lapisan teknis.
-- "Smart endpoints and dumb pipes": logika di service, bukan di bus pesan.
+- Diorganisasi berdasarkan business capability, bukan technical layer.
+- "Smart endpoints and dumb pipes": logika di service, bukan di message bus.
 - Tata kelola dan pengelolaan data yang terdesentralisasi.
 - Otomasi infrastruktur dan desain yang memperhitungkan kegagalan.
 

@@ -2,7 +2,7 @@
 
 Jangan membangun semuanya sekaligus. Urutan yang mengurangi risiko:
 
-1. **Order sendirian**: API, validasi, persistensi, migrasi, test. (Modul 3–6)
+1. **Order sendirian**: API, validasi, persistence, migrasi, test. (Modul 3–6)
 2. **Inventory sendirian**: API reservasi dan test-nya.
 3. **Hubungkan secara sinkron**: `RestClient` dengan timeout, pemetaan error. (Modul 7)
 4. **Tambahkan resilience**: idempotency key, retry terbatas, circuit breaker. (Modul 8)
@@ -55,7 +55,7 @@ class InventoryTimeoutTest {
 ```
 
 > [!NOTE] Simulasi vs bukti nyata
-> Playground di Springpath membantu memahami konsep seperti circuit breaker dan idempotency. Untuk capstone, bukti harus berasal dari aplikasimu sendiri: test yang lulus, log, atau metrics dari sistem yang berjalan.
+> Playground di Springy membantu memahami konsep seperti circuit breaker dan idempotency. Untuk capstone, bukti harus berasal dari aplikasimu sendiri: test yang lulus, log, atau metrics dari sistem yang berjalan.
 
 ## Catat hasil percobaan manual
 

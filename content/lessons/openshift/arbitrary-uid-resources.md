@@ -76,5 +76,5 @@ Jangan set 100%: JVM juga butuh memori di luar heap untuk metaspace, thread stac
 > - Image non-root dan lolos uji arbitrary UID.
 > - Resource request/limit realistis dan heap disesuaikan.
 > - Startup, readiness, dan liveness probe dikonfigurasi (modul Observability).
-> - Konfigurasi dari ConfigMap, rahasia dari Secret.
+> - Konfigurasi dari ConfigMap, secret dari Secret.
 > - Lebih dari satu replica dan graceful shutdown aktif (`server.shutdown=graceful`).

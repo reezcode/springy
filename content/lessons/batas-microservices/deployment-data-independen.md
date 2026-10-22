@@ -2,15 +2,15 @@
 
 Sebuah service benar-benar independen jika tim bisa **merilis versi baru kapan saja tanpa berkoordinasi dengan tim lain**. Itu hanya mungkin jika:
 
-1. Kontrak (API dan event) tetap kompatibel dengan konsumen yang sedang berjalan.
+1. Kontrak (API dan event) tetap kompatibel dengan consumer yang sedang berjalan.
 2. Datanya hanya dimiliki service itu.
 3. Proses build dan deploy-nya terpisah.
 
 Jika rilis Order selalu harus dibarengi rilis Inventory, kamu punya satu sistem yang dipaksa menjadi dua deployment.
 
-## Kompatibilitas mundur
+## Backward compatibility
 
-Saat Inventory merilis versi baru, Order versi lama masih berjalan. Selama rolling update, bahkan dua versi Inventory berjalan bersamaan. Karena itu setiap perubahan kontrak harus aman untuk konsumen lama.
+Saat Inventory merilis versi baru, Order versi lama masih berjalan. Selama rolling update, bahkan dua versi Inventory berjalan bersamaan. Karena itu setiap perubahan kontrak harus aman untuk consumer lama.
 
 | Aman (additive) | Butuh transisi (breaking) |
 | --- | --- |
@@ -32,11 +32,11 @@ Untuk perubahan breaking, lakukan bertahap dan rilis setiap langkah secara terpi
 
 ## Contract test
 
-Bagaimana Inventory tahu perubahan mana yang merusak Order? **Consumer-driven contract testing** (misalnya dengan Pact atau Spring Cloud Contract) membalik arah: konsumen menuliskan ekspektasinya sebagai kontrak, dan pipeline penyedia memverifikasi kontrak itu sebelum rilis. Perubahan yang merusak konsumen gagal di CI, bukan di produksi.
+Bagaimana Inventory tahu perubahan mana yang merusak Order? **Consumer-driven contract testing** (misalnya dengan Pact atau Spring Cloud Contract) membalik arah: consumer menuliskan ekspektasinya sebagai kontrak, dan pipeline penyedia memverifikasi kontrak itu sebelum rilis. Perubahan yang merusak consumer gagal di CI, bukan di produksi.
 
 ## Database per service, secara realistis
 
-"Database per service" tidak harus berarti satu server PostgreSQL per service. Pilihannya berupa spektrum:
+"Database per service" tidak selalu membutuhkan server PostgreSQL terpisah. Beberapa pilihannya:
 
 | Opsi | Isolasi | Biaya |
 | --- | --- | --- |

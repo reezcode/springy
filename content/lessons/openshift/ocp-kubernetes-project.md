@@ -1,6 +1,6 @@
 ## Dari satu host ke cluster
 
-Docker dan Podman menjalankan container di satu mesin. Di produksi, kita butuh lebih: menjalankan banyak replica di banyak mesin, mengganti container yang mati, rolling update tanpa downtime, dan load balancing. Itu tugas **orkestrator container**, dan standar de facto-nya adalah **Kubernetes**.
+Docker dan Podman menjalankan container di satu mesin. Di produksi, kita butuh lebih: menjalankan banyak replica di banyak mesin, mengganti container yang mati, rolling update tanpa downtime, dan load balancing. Itu tugas **container orchestrator**, dan standar de facto-nya adalah **Kubernetes**.
 
 **OpenShift Container Platform (OCP)** adalah platform Kubernetes dari Red Hat. Semua konsep Kubernetes berlaku, ditambah fitur yang memudahkan developer dan tim operasi:
 
@@ -58,6 +58,6 @@ oc project belajar-microservices    # pindah project aktif
 > [!TIP] Tempat latihan
 > Red Hat menyediakan *Developer Sandbox for OpenShift* gratis dengan batas waktu dan kuota, cukup untuk mengikuti modul ini. Alternatif lokalnya adalah OpenShift Local (dulu CodeReady Containers), yang butuh RAM cukup besar.
 
-## Batas jalur ini
+## Cakupan modul ini
 
 Modul ini adalah **pengenalan penggunaan**: men-deploy aplikasi, mengeksposnya, dan memahami batasan keamanannya. Instalasi cluster, pengelolaan node, jaringan cluster, dan administrasi Operator adalah topik tersendiri untuk peran platform engineer.

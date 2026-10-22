@@ -1,0 +1,175 @@
+{
+  "title": "Observability",
+  "subtitle": "Find failures through health, logs, metrics, and traces.",
+  "description": "Expose selected Actuator endpoints, inspect application signals, and trace requests across services. Configure liveness, readiness, and startup probes.",
+  "lessons": [
+    {
+      "title": "Health & operational endpoints",
+      "summary": "Actuator reports application and component health. Expose only the endpoints needed and protect sensitive information.",
+      "objectives": [
+        "Limit Actuator web exposure.",
+        "Interpret health HTTP status codes."
+      ],
+      "keyPoints": [
+        "Expose selected endpoints rather than a wildcard.",
+        "A failing datasource indicator can make aggregate health DOWN.",
+        "Avoid exposing configuration, heap dumps, and other sensitive endpoints publicly."
+      ],
+      "practice": [
+        "Expose health and info and restrict detailed health information.",
+        "Public health responses omit sensitive internals."
+      ],
+      "exercises": [
+        {
+          "prompt": "Expose only health and info through Actuator web endpoints, and show health details only to authorized users.",
+          "checks": [
+            "Set include: health,info",
+            "Do not use wildcard *",
+            "Set show-details: when-authorized"
+          ],
+          "explanation": "Endpoints such as env and heapdump can expose secrets or memory contents. Keep exposure narrow and access controlled."
+        },
+        {
+          "prompt": "The database is down and the datasource health indicator is active. What does aggregate health report by default?",
+          "options": [
+            "DOWN with HTTP 503.",
+            "UP because the process is running.",
+            "HTTP 404.",
+            "The application automatically restarts."
+          ],
+          "explanation": "DOWN maps to 503 so monitoring and load balancers can distinguish unavailable components."
+        }
+      ]
+    },
+    {
+      "title": "Logs, metrics & traces",
+      "summary": "Metrics summarize behavior, logs explain individual events, and traces connect operations within a request.",
+      "objectives": [
+        "Choose a signal for an alert.",
+        "Create a Micrometer business counter.",
+        "Keep sensitive data out of logs."
+      ],
+      "keyPoints": [
+        "Metrics support rates, latency distributions, and alerts.",
+        "Trace IDs connect spans and related log entries.",
+        "Avoid passwords, tokens, personal data, and high-cardinality metric tags."
+      ],
+      "practice": [
+        "Count created orders and log their internal IDs without full request headers.",
+        "Prometheus can query the counter and logs contain no credentials."
+      ],
+      "exercises": [
+        {
+          "prompt": "You need an alert when more than 5% of POST /orders requests fail over five minutes. Which signal fits best?",
+          "options": [
+            "Metrics with status-tagged counters or timers",
+            "Manually reading every log every five minutes",
+            "One trace from the latest request",
+            "A heap dump"
+          ],
+          "explanation": "HTTP request metrics can be aggregated into error rates over a time window."
+        },
+        {
+          "prompt": "Create a Micrometer orders.created counter that increments whenever an order is created. Receive MeterRegistry through the constructor.",
+          "checks": [
+            "Accept MeterRegistry in the constructor",
+            "Create the orders.created counter",
+            "Call increment()"
+          ],
+          "explanation": "Prometheus exposes this counter as orders_created_total. Avoid tags such as individual order IDs."
+        },
+        {
+          "prompt": "Which log entry avoids sensitive request or customer data?",
+          "options": [
+            "Log Order created with orderId and item count.",
+            "Log every request header including Authorization.",
+            "Log the login password at DEBUG.",
+            "Log a complete customer object containing identity numbers and addresses."
+          ],
+          "explanation": "Log identifiers and technical context. Headers and full objects can contain secrets and personal information."
+        }
+      ]
+    },
+    {
+      "title": "Tracing across services",
+      "summary": "Distributed tracing joins spans across services so you can locate slow or failed operations.",
+      "objectives": [
+        "Preserve trace context in HTTP clients.",
+        "Identify the W3C traceparent header.",
+        "Configure sampling for development."
+      ],
+      "keyPoints": [
+        "Use auto-configured client builders to retain instrumentation.",
+        "traceparent carries IDs needed to join spans.",
+        "Sample deliberately; recording every production request has a cost."
+      ],
+      "practice": [
+        "Connect Order and Inventory tracing and inspect one request across both services.",
+        "Both operations appear under the same trace ID."
+      ],
+      "exercises": [
+        {
+          "prompt": "Order and Inventory appear as separate traces. What is a likely cause?",
+          "options": [
+            "Order uses RestClient.create(), bypassing the instrumented Boot builder.",
+            "Inventory uses a different port.",
+            "The services use different databases.",
+            "Sampling is set to 100%."
+          ],
+          "explanation": "Boot’s auto-configured builder includes observation instrumentation. A manually created client can omit context propagation."
+        },
+        {
+          "prompt": "Which W3C Trace Context header carries trace and span IDs between services?",
+          "hint": "Its name starts with trace.",
+          "explanation": "traceparent carries the trace ID, parent span ID, version, and flags."
+        },
+        {
+          "prompt": "Set tracing sampling to 100% for a development environment.",
+          "checks": [
+            "Include a sampling block",
+            "Set probability: 1.0"
+          ],
+          "explanation": "Full sampling is useful during development. Choose an appropriate production policy or collector-side tail sampling."
+        }
+      ]
+    },
+    {
+      "title": "Liveness, readiness & startup",
+      "summary": "Probes tell the platform when to send traffic and when a container needs restarting.",
+      "objectives": [
+        "Keep shared dependencies out of liveness.",
+        "Configure separate readiness and liveness endpoints."
+      ],
+      "keyPoints": [
+        "Readiness removes unready pods from service traffic.",
+        "Liveness failure restarts a container.",
+        "Startup probes allow slow JVM startup before regular probes begin."
+      ],
+      "practice": [
+        "Configure startup, readiness, and liveness probes for the application.",
+        "A database outage does not trigger unnecessary restarts of every instance."
+      ],
+      "exercises": [
+        {
+          "prompt": "A shared database is down for two minutes. What happens if every instance includes database health in liveness?",
+          "options": [
+            "Instances repeatedly restart even though restarting does not repair the database.",
+            "The database automatically recovers.",
+            "Nothing happens.",
+            "Only one instance restarts."
+          ],
+          "explanation": "Liveness should assess whether the process itself can recover. Shared-dependency failures need a separate readiness or application error strategy."
+        },
+        {
+          "prompt": "Add readiness at /actuator/health/readiness and liveness at /actuator/health/liveness, both on port 8080.",
+          "checks": [
+            "Point readinessProbe at /actuator/health/readiness",
+            "Point livenessProbe at /actuator/health/liveness",
+            "Set probe port 8080"
+          ],
+          "explanation": "Boot enables Kubernetes probe health groups when Kubernetes is detected; enable probes explicitly for local experiments."
+        }
+      ]
+    }
+  ]
+}

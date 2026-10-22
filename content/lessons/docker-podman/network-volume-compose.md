@@ -1,4 +1,4 @@
-## Container saling bicara lewat network
+## Komunikasi antarcontainer lewat network
 
 Setiap container punya network namespace sendiri, termasuk `localhost`-nya sendiri. Agar Order bisa menghubungi PostgreSQL, keduanya harus berada di network yang sama:
 
@@ -86,8 +86,8 @@ Compose otomatis membuat network untuk project sehingga `db` dapat ditemukan ole
 
 PostgreSQL butuh beberapa detik setelah container start untuk siap menerima koneksi. Tanpa kondisi `service_healthy`, Order bisa mencoba koneksi terlalu cepat dan gagal start.
 
-> [!NOTE] Tetap rancang agar tahan
+> [!NOTE] Tangani koneksi yang terputus saat runtime
 > `depends_on` hanya berlaku saat Compose memulai stack. Jika database restart di tengah jalan, aplikasi tetap harus menangani koneksi yang terputus (pool koneksi akan mencoba lagi). Di Kubernetes tidak ada `depends_on` sama sekali; readiness probe dan retry yang mengambil peran ini.
 
-> [!TIP] Rahasia di Compose
+> [!TIP] Secret di Compose
 > Untuk latihan, password di `compose.yaml` bisa diterima. Untuk berbagi project, pindahkan ke file `.env` yang tidak di-commit, atau gunakan fitur `secrets` Compose.

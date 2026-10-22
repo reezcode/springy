@@ -4,18 +4,23 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { Outline } from '@/content';
 import { useProgress } from '@/hooks/use-progress';
+import { Star } from 'lucide-react';
+import { rewardStatus } from '@/lib/progress/rewards';
 import { overallStatus } from '@/lib/progress/selectors';
 import { cn } from '@/lib/cn';
 import { ProgressBar } from '@/components/ui/progress-bar';
 import { Brand } from './brand';
 import { navItems } from './nav-items';
 import { SearchTrigger } from './search-dialog';
+import { LanguageSwitcher } from './language-switcher';
+import { MotionToggle } from './motion-toggle';
 import { ThemeToggle } from './theme-toggle';
 
 export function SidebarContent({ outline, onNavigate }: { outline: Outline; onNavigate?: () => void }) {
   const pathname = usePathname() ?? '/';
   const { progress, hydrated } = useProgress();
   const overall = overallStatus(progress, outline);
+  const rewards = rewardStatus(progress, outline);
 
   return (
     <div className="flex h-full flex-col gap-6 px-4 py-5">
@@ -50,14 +55,20 @@ export function SidebarContent({ outline, onNavigate }: { outline: Outline; onNa
       </nav>
 
       <div className="mt-auto space-y-4">
+        <LanguageSwitcher />
+        <MotionToggle />
         <div className="rounded-xl border border-border bg-subtle p-4">
+          <div className="mb-3 flex items-center justify-between border-b border-border pb-3 text-xs">
+            <span className="flex items-center gap-1.5 font-semibold text-accent-text"><Star className="size-3.5" aria-hidden="true" /> Level {hydrated ? rewards.level : 1}</span>
+            <span className="font-semibold tabular-nums text-fg" data-testid="sidebar-xp" data-ready={hydrated}>{hydrated ? rewards.xp : 0} XP</span>
+          </div>
           <div className="flex items-baseline justify-between">
             <p className="text-sm font-semibold">Progres belajar</p>
             <p className="text-sm text-fg-muted tabular-nums">{hydrated ? overall.percent : 0}%</p>
           </div>
           <ProgressBar className="mt-2.5" value={hydrated ? overall.percent : 0} label="Progres keseluruhan" />
           <p className="mt-2.5 text-xs text-fg-muted">
-            {hydrated ? overall.lessonsComplete : 0} dari {overall.lessonsTotal} materi lulus latihan
+            {hydrated ? overall.lessonsComplete : 0} dari {overall.lessonsTotal} materi selesai
           </p>
         </div>
         <div className="flex items-center justify-between px-1">

@@ -17,7 +17,7 @@ function Inlines({ nodes }: { nodes: Inline[] }) {
         return <em key={i}><Inlines nodes={n.children} /></em>;
       case 'link':
         return (
-          <a key={i} href={n.href} target="_blank" rel="noreferrer">
+          <a key={i} href={n.href} target="_blank" rel="noopener noreferrer">
             <Inlines nodes={n.children} />
             <span className="sr-only"> (membuka tab baru)</span>
           </a>

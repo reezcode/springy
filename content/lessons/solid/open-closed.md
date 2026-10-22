@@ -1,8 +1,8 @@
-## Terbuka untuk ekstensi, tertutup untuk modifikasi
+## Open/Closed Principle
 
-Open/Closed Principle menyatakan bahwa modul sebaiknya **bisa diperluas perilakunya tanpa mengubah kode sumbernya**. Kode yang sudah stabil dan teruji tidak perlu disentuh ketika ada variasi baru.
+Open/Closed Principle menyatakan bahwa modul sebaiknya **bisa diperluas perilakunya tanpa mengubah source code-nya**. Kode yang sudah stabil dan teruji tidak perlu disentuh ketika ada variasi baru.
 
-## Bau kode: rantai if per jenis
+## Code smell: cabang if untuk setiap jenis diskon
 
 ```java title="Melanggar OCP"
 public long finalPrice(long subtotal, String customerType) {
@@ -19,7 +19,7 @@ public long finalPrice(long subtotal, String customerType) {
 
 Setiap jenis diskon baru memaksa kamu membuka method ini, menambah cabang, dan berisiko merusak cabang lain. Jika logika serupa tersebar di beberapa tempat, kamu harus ingat mengubah semuanya.
 
-## Titik ekstensi dengan interface
+## Extension point dengan interface
 
 ```java
 public interface DiscountPolicy {
@@ -49,7 +49,7 @@ public final class Checkout {
 }
 ```
 
-Diskon promo baru? Tambahkan class `PromoDiscount`. `Checkout` tetap tertutup dari modifikasi, tetapi terbuka untuk ekstensi. Pola ini disebut **Strategy**.
+Diskon promo baru? Tambahkan class `PromoDiscount`. Kode `Checkout` tidak perlu berubah karena hanya memakai interface `DiscountPolicy`. Pola ini disebut **Strategy**.
 
 > [!TIP] Coba di playground
 > Lab "SOLID & strategy" memperlihatkan alur Checkout yang tetap sama ketika discount policy dan payment gateway diganti.
@@ -67,9 +67,9 @@ DiscountPolicy policy = switch (customer.tier()) {
 new Checkout(policy).total(subtotal);
 ```
 
-Di Spring, kamu bisa menyuntikkan `Map<String, DiscountPolicy>` berisi semua bean implementasi dan memilih berdasarkan key.
+Di Spring, kamu bisa meng-inject `Map<String, DiscountPolicy>` berisi semua bean implementasi dan memilih berdasarkan key.
 
-## Hindari abstraksi spekulatif
+## Hindari speculative abstraction
 
 OCP bukan alasan untuk membuat interface bagi setiap class "kalau-kalau nanti dibutuhkan". Abstraksi punya biaya: lebih banyak file, alur lebih sulit diikuti, dan kontrak yang salah tebak.
 

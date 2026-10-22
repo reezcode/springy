@@ -14,7 +14,7 @@ Trace 4bf92f35…
 
 Setiap span mencatat nama operasi, waktu mulai, durasi, status, dan atribut seperti URL atau nama tabel. Tanpa tracing, kamu hanya tahu "checkout lambat"; dengan tracing, kamu tahu `UPDATE stock` di Inventory yang memakan waktu.
 
-## Propagasi konteks
+## Context propagation
 
 Agar span di Inventory tergabung dengan trace dari Order, konteks trace harus **dikirim bersama request**. Standar yang dipakai Spring Boot secara default adalah W3C Trace Context:
 
@@ -65,7 +65,7 @@ docker run --rm -d --name jaeger -p 16686:16686 -p 4318:4318 jaegertracing/all-i
 
 ## Propagasi otomatis hanya jika kliennya diinstrumentasi
 
-Header `traceparent` ditambahkan oleh instrumentasi Micrometer Observation pada klien HTTP. Spring Boot memasang instrumentasi itu pada **builder yang diautokonfigurasi**:
+Header `traceparent` ditambahkan oleh instrumentasi Micrometer Observation pada klien HTTP. Spring Boot memasang instrumentasi itu pada **builder yang disediakan auto-configuration Spring Boot**:
 
 ```java title="Benar: memakai builder dari Spring Boot"
 @Bean

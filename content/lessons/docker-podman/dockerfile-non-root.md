@@ -46,7 +46,7 @@ ENTRYPOINT ["java", "-jar", "/app/app.jar"]
 
 Manfaatnya:
 
-- Image akhir tidak membawa Maven, kode sumber, atau JDK lengkap, sehingga lebih kecil dan permukaan serangannya lebih sempit.
+- Image akhir tidak membawa Maven, source code, atau JDK lengkap, sehingga lebih kecil dan permukaan serangannya lebih sempit.
 - Build sama di semua mesin karena alatnya ada di dalam image build.
 - `pom.xml` disalin dan dependency diunduh **sebelum** `src/`, sehingga mengubah kode tidak memaksa unduh ulang semua dependency.
 
@@ -70,7 +70,7 @@ docker run --rm order-service:0.1 id
 # uid=10001 gid=0(root) groups=0(root)
 ```
 
-## Bentuk exec untuk ENTRYPOINT
+## Exec form untuk ENTRYPOINT
 
 ```dockerfile
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]     # exec form: java menjadi PID 1

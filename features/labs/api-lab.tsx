@@ -42,7 +42,7 @@ export function ApiLab() {
             <Button type="submit"><Play className="size-4" /> Kirim</Button>
           </div>
           <Field label="Request body (JSON)">
-            <textarea value={body} onChange={(e) => setBody(e.target.value)} spellCheck={false} rows={5} className={cn(fieldClass, 'h-auto py-2 font-mono')} />
+            <textarea maxLength={20_000} value={body} onChange={(e) => setBody(e.target.value)} spellCheck={false} rows={5} className={cn(fieldClass, 'h-auto py-2 font-mono')} />
           </Field>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Idempotency-Key">

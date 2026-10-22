@@ -2,7 +2,7 @@
 
 **Monitoring** menjawab pertanyaan yang sudah kamu ketahui sebelumnya: "apakah CPU di atas 80%?". **Observability** adalah kemampuan menjawab pertanyaan *baru* tentang perilaku sistem dari sinyal yang dikeluarkannya, misalnya "kenapa hanya pelanggan dari satu wilayah yang gagal checkout sejak pukul 14.05?". Di sistem terdistribusi, pertanyaan baru seperti itu muncul setiap hari.
 
-Langkah pertama adalah membuat aplikasi bisa menjawab pertanyaan paling dasar: *apakah kamu sehat?*
+Mulai dengan endpoint health untuk memeriksa apakah aplikasi dan komponen yang dibutuhkannya berfungsi.
 
 ## Spring Boot Actuator
 
@@ -14,7 +14,7 @@ Tambahkan `spring-boot-starter-actuator`. Actuator menyediakan endpoint operasio
 | `info` | Info build, git, versi | Rendah |
 | `metrics` | Daftar dan nilai metrics | Sedang |
 | `prometheus` | Metrics format Prometheus | Sedang |
-| `env`, `configprops` | Konfigurasi dan environment | **Tinggi**: bisa berisi rahasia |
+| `env`, `configprops` | Konfigurasi dan environment | **Tinggi**: bisa berisi secret |
 | `heapdump`, `threaddump` | Isi memori dan thread | **Tinggi** |
 | `loggers` | Melihat dan mengubah level log | Tinggi (bisa diubah) |
 

@@ -5,9 +5,9 @@ const r = String.raw;
 const javaOop: ModuleInput = {
   slug: 'java-oop',
   title: 'Java & OOP',
-  subtitle: 'Mulai dari objek, bukan anotasi.',
+  subtitle: 'Kenali class, object, dan cara menyusun kode Java.',
   description:
-    'Fondasi sebelum framework: class, object, encapsulation, interface, composition, collections, dan exception. Spring Boot memakai semua konsep ini setiap saat, jadi waktu yang kamu habiskan di sini akan terbayar di modul berikutnya.',
+    'Pelajari class, object, interface, composition, collections, dan exception lewat contoh order dan pembayaran. Konsep-konsep ini akan dipakai lagi saat kamu mulai membuat aplikasi Spring Boot.',
   category: 'Fondasi',
   hours: '6–8',
   tint: 'peach',
@@ -16,17 +16,17 @@ const javaOop: ModuleInput = {
     {
       slug: 'class-object-encapsulation',
       title: 'Class, object & encapsulation',
-      summary: 'Class mendefinisikan state dan perilaku; object adalah instansinya. Encapsulation menjaga agar state hanya berubah lewat aturan yang benar.',
+      summary: 'Class mendefinisikan state dan perilaku; object adalah instance-nya. Encapsulation menjaga agar state hanya berubah lewat aturan yang benar.',
       minutes: 35,
       objectives: [
         'Membedakan class, object, field, constructor, dan method.',
         'Menjaga invariant dengan field `private` dan validasi di constructor.',
-        'Memilih kapan memakai `final` dan objek immutable.',
+        'Memilih kapan memakai `final` dan object immutable.',
       ],
       keyPoints: [
-        'Class adalah cetak biru; object adalah instans yang hidup di memori dengan state sendiri.',
+        'Class mendefinisikan field dan method. Setiap object yang dibuat dari class itu punya state sendiri.',
         'Encapsulation berarti state hanya bisa diubah melalui method yang menjaga aturan bisnis (invariant).',
-        'Validasi di constructor memastikan object tidak pernah lahir dalam keadaan tidak valid.',
+        'Validasi di constructor menolak nilai yang tidak memenuhi aturan sebelum object selesai dibuat.',
         'Getter dan setter untuk semua field belum tentu encapsulation; ekspos perilaku, bukan data mentah.',
       ],
       practice: {
@@ -43,8 +43,8 @@ const javaOop: ModuleInput = {
           id: 'class-vs-object',
           prompt: 'Manakah pernyataan yang paling tepat tentang class dan object?',
           options: [
-            { text: 'Class adalah cetak biru; setiap object adalah instans dengan state miliknya sendiri.', correct: true },
-            { text: 'Object adalah cetak biru; class adalah salinan object di memori.', why: 'Terbalik. `new Order(...)` membuat object dari class `Order`.' },
+            { text: 'Class adalah blueprint; setiap object adalah instance dengan state miliknya sendiri.', correct: true },
+            { text: 'Object adalah blueprint; class adalah salinan object di memori.', why: 'Terbalik. `new Order(...)` membuat object dari class `Order`.' },
             { text: 'Class dan object sama saja, hanya beda penamaan.', why: 'Satu class bisa menghasilkan banyak object dengan state berbeda.' },
             { text: 'Object hanya boleh dibuat sekali untuk setiap class.', why: 'Itu pola Singleton, bukan aturan umum Java.' },
           ],
@@ -103,14 +103,14 @@ public class Order {
             { label: 'Nilai disimpan ke field dengan `this.total = total`', pattern: r`this\s*\.\s*total\s*=\s*total\s*;`, hint: 'Setelah validasi, simpan: `this.total = total;`.' },
             { label: 'Tidak ada setter publik untuk total', pattern: r`public\s+void\s+setTotal`, absent: true, hint: 'Hapus `setTotal`; field `final` tidak boleh diubah setelah constructor.' },
           ],
-          explanation: 'Dengan validasi di constructor dan field `final`, tidak ada jalan untuk membuat `Order` dengan total negatif. Invariant dijaga sejak object lahir.',
+          explanation: 'Dengan validasi di constructor dan field `final`, tidak ada jalan untuk membuat `Order` dengan total negatif. Invariant diperiksa sejak object dibuat.',
         },
       ],
     },
     {
       slug: 'interface-polymorphism-composition',
       title: 'Interface, polymorphism & composition',
-      summary: 'Interface menyatakan kontrak. Pemanggil memakai berbagai implementasi lewat tipe yang sama, dan composition menyusun perilaku dari objek lain.',
+      summary: 'Interface menyatakan kontrak. Pemanggil memakai berbagai implementasi lewat tipe yang sama, dan composition menyusun perilaku dari object lain.',
       minutes: 40,
       objectives: [
         'Menulis interface sebagai kontrak dan beberapa implementasinya.',
@@ -189,7 +189,7 @@ class FakeGateway implements PaymentGateway {
     {
       slug: 'collections-generics-records',
       title: 'Collections, generics & records',
-      summary: 'List, Set, dan Map adalah struktur data harian. Generics menjaga tipe saat kompilasi, dan record membuat data immutable dengan ringkas.',
+      summary: 'Pilih List, Set, atau Map sesuai kebutuhan. Gunakan generics agar compiler memeriksa tipe, dan record untuk menulis class data dengan lebih ringkas.',
       minutes: 40,
       objectives: [
         'Memilih `List`, `Set`, atau `Map` sesuai kebutuhan akses data.',
@@ -198,7 +198,7 @@ class FakeGateway implements PaymentGateway {
       ],
       keyPoints: [
         '`List` menjaga urutan dan boleh duplikat; `Set` hanya elemen unik; `Map` memasangkan key ke value.',
-        'Generics memindahkan kesalahan tipe dari runtime ke waktu kompilasi.',
+        'Generics memindahkan kesalahan tipe dari runtime ke compile time.',
         'Deklarasikan variabel dengan interface (`Map`) dan pilih implementasi (`HashMap`) di sisi kanan.',
         '`record` cocok untuk DTO immutable: constructor, accessor, `equals`, `hashCode`, dan `toString` dibuat otomatis.',
         '`HashMap` tidak aman untuk penulisan serentak dari banyak thread.',

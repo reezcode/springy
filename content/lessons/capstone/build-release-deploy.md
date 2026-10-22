@@ -57,11 +57,11 @@ Rollback
 1. oc rollout undo deployment/order
 2. oc rollout status deployment/order
 3. Verifikasi health.
-4. Migrasi database TIDAK ikut kembali: pastikan skema tetap cocok untuk versi lama.
+4. Migrasi database TIDAK ikut kembali: pastikan schema tetap cocok untuk versi lama.
 ```
 
 > [!WARNING] Migrasi dan rollback
-> Jika versi baru menjalankan migrasi yang menghapus kolom yang masih dibaca versi lama, rollback aplikasi akan gagal. Pisahkan perubahan skema yang merusak ke rilis berikutnya (expand and contract dari modul Data).
+> Jika versi baru menjalankan migrasi yang menghapus kolom yang masih dibaca versi lama, rollback aplikasi akan gagal. Pisahkan perubahan schema yang merusak ke rilis berikutnya (expand and contract dari modul Data).
 
 ## Menjalankan di dua lingkungan
 

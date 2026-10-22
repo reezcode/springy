@@ -80,7 +80,7 @@ class ApiExceptionHandler extends ResponseEntityExceptionHandler {
 > [!WARNING] Yang tidak boleh sampai ke klien
 > Stack trace, pesan SQL, nama tabel, path file server, versi library, dan isi exception yang tidak kamu kendalikan. Informasi ini membantu penyerang memetakan sistemmu.
 
-Untuk error tak terduga, kirim pesan generik dan **ID korelasi**, lalu log detail lengkap di server dengan ID yang sama:
+Untuk error tak terduga, kirim pesan generik dan **correlation ID**, lalu log detail lengkap di server dengan ID yang sama:
 
 ```java
 @ExceptionHandler(Exception.class)

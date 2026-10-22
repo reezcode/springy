@@ -5,9 +5,9 @@ const r = String.raw;
 const boundaries: ModuleInput = {
   slug: 'batas-microservices',
   title: 'Batas microservices',
-  subtitle: 'Pisahkan berdasarkan bisnis dan kebutuhan.',
+  subtitle: 'Tentukan bagian aplikasi yang perlu menjadi service.',
   description:
-    'Kapan microservices layak dibandingkan modular monolith, cara menentukan batas berdasarkan kemampuan bisnis dan kepemilikan data, komunikasi HTTP sinkron dengan timeout, serta syarat deployment independen.',
+    'Bandingkan modular monolith dengan microservices, lalu tentukan service boundary dan data ownership. Pelajari komunikasi HTTP antarservice, timeout, dan perubahan kontrak yang tetap mendukung consumer lama.',
   category: 'Microservices',
   hours: '4–6',
   tint: 'lavender',
@@ -25,7 +25,7 @@ const boundaries: ModuleInput = {
       ],
       keyPoints: [
         'Microservices: aplikasi sebagai kumpulan service kecil yang di-deploy independen, berkomunikasi lewat mekanisme ringan.',
-        'Manfaat utama: deployment independen, skala per service, kepemilikan tim yang jelas.',
+        'Manfaat utama: deployment independen, skala per service, team ownership yang jelas.',
         'Biaya: jaringan tidak andal, konsistensi data terdistribusi, observability dan operasi yang lebih rumit.',
         'Modular monolith dengan batas modul yang tegas adalah titik awal yang baik; pemisahan bisa dilakukan saat ada alasan nyata.',
       ],
@@ -58,22 +58,22 @@ const boundaries: ModuleInput = {
             { text: 'Satu class besar tanpa modul.', why: 'Tanpa batas modul, pemisahan di masa depan menjadi sangat sulit.' },
             { text: 'Satu service per tabel database.', why: 'Batas berdasarkan tabel menghasilkan service yang saling bergantung erat.' },
           ],
-          explanation: 'Batas domain lebih mudah ditemukan dan diubah di dalam satu codebase. Modular monolith menjaga opsi pemisahan tetap terbuka tanpa biaya operasional di awal.',
+          explanation: 'Domain boundary lebih mudah ditemukan dan diubah di dalam satu codebase. Modular monolith menjaga opsi pemisahan tetap terbuka tanpa biaya operasional di awal.',
         },
       ],
     },
     {
       slug: 'batas-domain-ownership',
-      title: 'Batas domain & ownership',
-      summary: 'Pilih batas service berdasarkan kemampuan bisnis. Setiap data punya satu pemilik yang berhak mengubahnya.',
+      title: 'Domain boundary & ownership',
+      summary: 'Pilih service boundary berdasarkan business capability. Setiap data punya satu pemilik yang berhak mengubahnya.',
       minutes: 40,
       objectives: [
-        'Mengidentifikasi kemampuan bisnis (business capability) sebagai kandidat batas.',
+        'Mengidentifikasi business capability (business capability) sebagai kandidat batas.',
         'Menetapkan pemilik tunggal untuk setiap data.',
         'Mengenali coupling akibat batas yang keliru.',
       ],
       keyPoints: [
-        'Batas yang baik mengikuti kemampuan bisnis (pemesanan, stok, notifikasi), bukan lapisan teknis atau tabel.',
+        'Batas yang baik mengikuti business capability (pemesanan, stok, notifikasi), bukan technical layer atau tabel.',
         'Database per service: hanya pemilik yang membaca/menulis tabelnya; service lain lewat API atau event.',
         'Bounded context: istilah yang sama bisa bermakna berbeda di service berbeda ("produk" di katalog vs di gudang).',
         'Jika dua service selalu harus dirilis bersama, batasnya mungkin salah.',
@@ -90,16 +90,16 @@ const boundaries: ModuleInput = {
           prompt: 'Order service perlu tahu stok tersedia. Cara mana yang **menjaga** ownership data Inventory?',
           options: [
             { text: 'Memanggil API Inventory (`GET /stock/{sku}`) atau memakai event stok dari Inventory.', correct: true },
-            { text: 'Query langsung ke tabel `stock` milik Inventory.', why: 'Ini membuat skema Inventory menjadi kontrak tersembunyi; Inventory tidak bisa mengubah tabelnya dengan aman.' },
-            { text: 'Menyalin tabel `stock` ke database Order setiap malam lewat skrip SQL.', why: 'Tetap bergantung pada skema internal dan datanya basi.' },
-            { text: 'Memberi Order hak tulis ke tabel `stock` agar bisa mengurangi stok sendiri.', why: 'Dua penulis untuk satu data menghancurkan ownership dan invariant stok.' },
+            { text: 'Query langsung ke tabel `stock` milik Inventory.', why: 'Ini membuat schema Inventory menjadi kontrak tersembunyi; Inventory tidak bisa mengubah tabelnya dengan aman.' },
+            { text: 'Menyalin tabel `stock` ke database Order setiap malam lewat skrip SQL.', why: 'Tetap bergantung pada schema internal dan datanya bisa tertinggal dari kondisi terbaru.' },
+            { text: 'Memberi Order hak tulis ke tabel `stock` agar bisa mengurangi stok sendiri.', why: 'Dua service yang menulis data yang sama membuat aturan perubahan stok lebih sulit dijaga.' },
           ],
-          explanation: 'Akses lewat API atau event membuat Inventory bebas mengubah skema internalnya selama kontrak publiknya stabil.',
+          explanation: 'Akses lewat API atau event membuat Inventory bebas mengubah schema internalnya selama kontrak publiknya stabil.',
         },
         {
           kind: 'choice',
           id: 'bad-boundary-smell',
-          prompt: 'Tanda mana yang menunjukkan batas service **keliru**?',
+          prompt: 'Tanda mana yang menunjukkan service boundary **keliru**?',
           multiple: true,
           options: [
             { text: 'Setiap fitur baru selalu mengubah Order dan Inventory sekaligus dan harus dirilis bersama.', correct: true },
@@ -114,7 +114,7 @@ const boundaries: ModuleInput = {
     {
       slug: 'komunikasi-sinkron',
       title: 'Kontrak komunikasi sinkron',
-      summary: 'Panggilan HTTP antarservice harus punya timeout dan pemetaan kegagalan yang disengaja. Jaringan tidak pernah sepenuhnya andal.',
+      summary: 'Panggilan HTTP antarservice harus punya timeout dan penanganan error yang jelas. Jaringan tidak pernah sepenuhnya andal.',
       minutes: 45,
       objectives: [
         'Memanggil service lain dengan `RestClient`.',
@@ -177,18 +177,18 @@ RestClient inventoryClient(RestClient.Builder builder, InventoryProperties props
     {
       slug: 'deployment-data-independen',
       title: 'Deployment & data independen',
-      summary: 'Independensi membutuhkan kontrak yang stabil, kompatibilitas mundur, dan kepemilikan data yang jelas.',
+      summary: 'Independensi membutuhkan kontrak yang stabil, backward compatibility, dan data ownership yang jelas.',
       minutes: 35,
       objectives: [
         'Menjelaskan syarat agar service bisa dirilis sendiri.',
-        'Menerapkan perubahan kontrak yang kompatibel mundur.',
+        'Menerapkan perubahan kontrak yang backward compatible.',
         'Memilih strategi database per service yang realistis untuk latihan.',
       ],
       keyPoints: [
-        'Service bisa dirilis independen hanya jika kontraknya kompatibel dengan versi konsumen yang sedang berjalan.',
+        'Service bisa dirilis independen hanya jika kontraknya kompatibel dengan versi consumer yang sedang berjalan.',
         'Perubahan additive (field/endpoint baru) aman; perubahan breaking butuh transisi bertahap.',
         'Database per service bisa berupa server terpisah, atau schema terpisah di server yang sama dengan hak akses tegas.',
-        'Consumer-driven contract test membantu mendeteksi perubahan yang merusak konsumen sebelum rilis.',
+        'Consumer-driven contract test membantu mendeteksi perubahan yang merusak consumer sebelum rilis.',
       ],
       practice: {
         task: 'Ubah format pesan Notification tanpa merilis ulang Order.',
@@ -203,15 +203,15 @@ RestClient inventoryClient(RestClient.Builder builder, InventoryProperties props
           items: [
             'Inventory mengirim kedua field (`qty` dan `available`).',
             'Order diperbarui untuk membaca `available`.',
-            'Pastikan tidak ada konsumen yang masih membaca `qty`.',
+            'Pastikan tidak ada consumer yang masih membaca `qty`.',
             'Inventory menghapus field `qty`.',
           ],
-          explanation: 'Pola expand–contract: tambahkan yang baru, migrasikan konsumen, baru hapus yang lama. Setiap langkah bisa dirilis sendiri.',
+          explanation: 'Pola expand–contract: tambahkan yang baru, migrasikan consumer, baru hapus yang lama. Setiap langkah bisa dirilis sendiri.',
         },
         {
           kind: 'choice',
           id: 'shared-db-server',
-          prompt: 'Untuk latihan, Order dan Inventory memakai satu server PostgreSQL. Bagaimana menjaga kepemilikan data?',
+          prompt: 'Untuk latihan, Order dan Inventory memakai satu server PostgreSQL. Bagaimana menjaga data ownership?',
           options: [
             { text: 'Schema dan user database terpisah; user Order tidak punya hak ke schema Inventory.', correct: true },
             { text: 'Satu schema dan satu user untuk semua, cukup sepakat secara lisan.', why: 'Kesepakatan lisan mudah dilanggar; tidak ada yang mencegah query lintas batas.' },

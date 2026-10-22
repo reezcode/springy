@@ -1,0 +1,181 @@
+{
+  "title": "REST API design",
+  "subtitle": "Make requests, responses, and errors clear.",
+  "description": "Design resources and HTTP status codes, validate DTOs, and return structured ProblemDetail errors. Document successful requests and edge cases.",
+  "lessons": [
+    {
+      "title": "Resource, HTTP method & status",
+      "summary": "Model resources in URLs and use HTTP methods and status codes to describe the operation and its result.",
+      "objectives": [
+        "Design resource-oriented URLs.",
+        "Distinguish safe and idempotent methods.",
+        "Return a useful Location header when creating resources."
+      ],
+      "keyPoints": [
+        "Use /orders for a collection and /orders/{id} for an individual resource.",
+        "GET, PUT, and DELETE are idempotent; POST needs an explicit strategy for safe retries.",
+        "201 Created should identify the new resource with Location."
+      ],
+      "practice": [
+        "Implement POST /orders and GET /orders/{id}.",
+        "Creation returns 201 and Location; lookup returns 200 or 404."
+      ],
+      "exercises": [
+        {
+          "prompt": "POST /orders creates order 42. Which response best describes the result?",
+          "options": [
+            "201 Created with Location: /orders/42 and the order body.",
+            "200 OK with the body “success”.",
+            "204 No Content.",
+            "302 Found redirecting to /orders/42."
+          ],
+          "explanation": "201 identifies a new resource and Location tells the client where to retrieve it."
+        },
+        {
+          "prompt": "Which HTTP methods are idempotent?",
+          "options": [
+            "GET",
+            "PUT",
+            "DELETE",
+            "POST"
+          ],
+          "explanation": "An idempotent operation has the same intended server-side effect when repeated. POST does not guarantee this without additional handling."
+        },
+        {
+          "prompt": "Return 201 Created with Location /orders/{id} and the order as the body.",
+          "checks": [
+            "Use ResponseEntity.created(...)",
+            "Build the URI using the order ID",
+            "Include the order in the body",
+            "Remove ResponseEntity.ok"
+          ],
+          "explanation": "ResponseEntity.created(uri).body(order) sets the creation status and Location header."
+        }
+      ]
+    },
+    {
+      "title": "DTO & Bean Validation",
+      "summary": "DTOs define request and response data. Valid activates validation before input reaches the service.",
+      "objectives": [
+        "Declare input constraints on a DTO.",
+        "Activate request validation with Valid.",
+        "Keep business checks in service or domain code."
+      ],
+      "keyPoints": [
+        "NotBlank rejects null, empty, and whitespace-only strings.",
+        "Min(1) or Positive rejects non-positive quantities.",
+        "DTO constraints do not replace checks that require inventory or other state."
+      ],
+      "practice": [
+        "Validate product and quantity in CreateOrderRequest and add Valid to the controller argument.",
+        "Invalid input returns 400 before the service is called."
+      ],
+      "exercises": [
+        {
+          "prompt": "Require a non-blank product and quantity of at least 1, then activate validation in the controller.",
+          "checks": [
+            "Add NotBlank to product",
+            "Add Min(1) or Positive to quantity",
+            "Add Valid to the RequestBody parameter"
+          ],
+          "explanation": "Validation failure raises MethodArgumentNotValidException and returns 400 before entering the service."
+        },
+        {
+          "prompt": "Which is a business rule rather than a DTO format constraint?",
+          "options": [
+            "Quantity must not exceed available inventory.",
+            "product is required.",
+            "quantity must be at least 1.",
+            "An email address must have a valid format."
+          ],
+          "explanation": "Available inventory requires external state. Check it in service/domain code rather than a standalone input constraint."
+        }
+      ]
+    },
+    {
+      "title": "Error response & ProblemDetail",
+      "summary": "Use a consistent error format that clients can process and that does not expose internal details.",
+      "objectives": [
+        "Map a domain exception to an HTTP response.",
+        "Return ProblemDetail for a missing resource.",
+        "Keep SQL errors and stack traces out of public responses."
+      ],
+      "keyPoints": [
+        "ProblemDetail implements the Problem Details response format.",
+        "Centralize exception mapping in RestControllerAdvice.",
+        "Use a correlation ID to connect a generic response with detailed server logs."
+      ],
+      "practice": [
+        "Map OrderNotFoundException to a 404 ProblemDetail response.",
+        "The client gets a clear error without a stack trace or SQL details."
+      ],
+      "exercises": [
+        {
+          "prompt": "Write an advice handler that maps OrderNotFoundException to a 404 ProblemDetail using the exception message as detail.",
+          "checks": [
+            "Handle OrderNotFoundException with ExceptionHandler",
+            "Return ProblemDetail",
+            "Set status 404",
+            "Read detail from the exception"
+          ],
+          "explanation": "The response uses application/problem+json and identifies the missing order with status 404."
+        },
+        {
+          "prompt": "Which database-failure response is safest to send to a client?",
+          "options": [
+            "A 500 error with a generic message and reference ID 7f3a.",
+            "The full stack trace for debugging.",
+            "The raw SQL error including table, constraint, and key values.",
+            "An empty response with status 200."
+          ],
+          "explanation": "Log detailed diagnostics on the server and send a correlation ID so the incident can be investigated without exposing internals."
+        }
+      ]
+    },
+    {
+      "title": "API contract & edge cases",
+      "summary": "Document payloads, status codes, headers, and failures so clients know what to handle.",
+      "objectives": [
+        "Recognize breaking changes.",
+        "Test malformed requests.",
+        "Document headers and example responses."
+      ],
+      "keyPoints": [
+        "Removing or renaming a response field breaks clients using it.",
+        "Making an optional request field required also breaks compatibility.",
+        "Malformed JSON should return 400 rather than an unrelated server error."
+      ],
+      "practice": [
+        "Create repeatable curl examples for success, invalid input, missing tokens, and missing IDs.",
+        "The README states expected status codes, bodies, and headers."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which changes break existing clients?",
+          "options": [
+            "Rename response field total to amount.",
+            "Add an optional note field to the response.",
+            "Make an optional coupon request field required.",
+            "Add GET /orders/{id}/items."
+          ],
+          "explanation": "Renaming fields or tightening required input changes assumptions existing clients depend on."
+        },
+        {
+          "prompt": "A client sends malformed JSON with no value after quantity. Which status is appropriate?",
+          "options": [
+            "400 Bad Request",
+            "500 Internal Server Error",
+            "404 Not Found",
+            "201 Created with quantity 0"
+          ],
+          "explanation": "Spring maps unreadable JSON to 400. Do not accidentally turn this into 500 with an overly broad error handler."
+        },
+        {
+          "prompt": "Which response header identifies the new order after a 201 response?",
+          "hint": "It tells the client the URI of the created resource.",
+          "explanation": "Location points to the new resource, for example /orders/42."
+        }
+      ]
+    }
+  ]
+}

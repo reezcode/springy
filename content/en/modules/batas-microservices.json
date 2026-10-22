@@ -1,0 +1,162 @@
+{
+  "title": "Microservice boundaries",
+  "subtitle": "Decide which parts of an application need separate services.",
+  "description": "Compare modular monoliths and microservices, then define service boundaries and data ownership. Learn HTTP communication, timeouts, and independently deployable contracts.",
+  "lessons": [
+    {
+      "title": "Modular monolith or microservices?",
+      "summary": "Microservices offer independent deployment and scaling at the cost of distributed-system complexity.",
+      "objectives": [
+        "Compare architectural trade-offs.",
+        "Identify a concrete reason to separate a service."
+      ],
+      "keyPoints": [
+        "Independent deployment and scaling are benefits, not automatic outcomes.",
+        "A modular monolith keeps boundaries without adding network calls.",
+        "Services that must always deploy together may form a distributed monolith."
+      ],
+      "practice": [
+        "Write an ADR comparing a modular monolith with separate Order and Inventory services.",
+        "The decision names a business or operational need and its costs."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which are primary benefits of microservices?",
+          "options": [
+            "A service can deploy without redeploying every other service.",
+            "A heavily used service can scale independently.",
+            "Network calls are faster than method calls.",
+            "Data consistency automatically becomes easier."
+          ],
+          "explanation": "Independent deployment and scaling are possible benefits. Network failures and distributed consistency add operational work."
+        },
+        {
+          "prompt": "Three developers are building a new product with an unclear domain. Which starting point is most reasonable?",
+          "options": [
+            "A modular monolith with clear boundaries, splitting later if a real need appears.",
+            "Twelve microservices immediately.",
+            "One giant class without modules.",
+            "One service per database table."
+          ],
+          "explanation": "Boundaries are easier to refine within a codebase before committing to separate deployments and network contracts."
+        }
+      ]
+    },
+    {
+      "title": "Domain boundaries & data ownership",
+      "summary": "Group services around business capabilities and give each data set one owner.",
+      "objectives": [
+        "Identify a business capability.",
+        "Access another service’s data through its contract."
+      ],
+      "keyPoints": [
+        "Table boundaries alone rarely define a useful service.",
+        "Only the owning service should write its data.",
+        "Shared internal schemas create hidden contracts between services."
+      ],
+      "practice": [
+        "Assign ownership of orders, stock, reservations, and notification records.",
+        "Order accesses Inventory through an API or events rather than direct SQL."
+      ],
+      "exercises": [
+        {
+          "prompt": "Order needs available stock. Which approach preserves Inventory ownership?",
+          "options": [
+            "Call Inventory’s API or consume its stock events.",
+            "Query Inventory’s stock table directly.",
+            "Copy its internal stock table with a nightly SQL script.",
+            "Give Order write access to Inventory’s stock table."
+          ],
+          "explanation": "An API or event contract lets Inventory change its internal schema without requiring Order to change."
+        },
+        {
+          "prompt": "Which signs suggest an unsuitable service boundary?",
+          "options": [
+            "Every feature changes Order and Inventory and requires a coordinated release.",
+            "One user request triggers six synchronous service calls.",
+            "Each service has its own database.",
+            "Inventory can release without waiting for Order."
+          ],
+          "explanation": "Repeated coordinated changes and long synchronous chains suggest tight coupling rather than independent services."
+        }
+      ]
+    },
+    {
+      "title": "Synchronous communication contracts",
+      "summary": "HTTP calls need explicit timeouts and useful mappings from downstream failures to domain errors.",
+      "objectives": [
+        "Configure RestClient with a timeout.",
+        "Map downstream failures to application responses."
+      ],
+      "keyPoints": [
+        "Use Boot’s RestClient.Builder so instrumentation is preserved.",
+        "Connect and read timeouts bound different parts of a request.",
+        "Long synchronous dependency chains reduce end-to-end availability."
+      ],
+      "practice": [
+        "Create an Inventory client with a configured base URL and a two-second read timeout.",
+        "A slow dependency produces a bounded, clearly reported failure."
+      ],
+      "exercises": [
+        {
+          "prompt": "Create an Inventory RestClient bean using the configured base URL and a two-second read timeout with SimpleClientHttpRequestFactory.",
+          "checks": [
+            "Set baseUrl from the properties",
+            "Set a two-second read timeout",
+            "Attach the request factory"
+          ],
+          "explanation": "Connect timeout bounds connection setup; read timeout bounds waiting for response data."
+        },
+        {
+          "prompt": "Order, Inventory, and Payment each have 99% availability and all are required synchronously. What is approximate combined availability, assuming independent failures?",
+          "options": [
+            "About 97%",
+            "99%",
+            "99.9%",
+            "100%, because there are three services"
+          ],
+          "explanation": "0.99 cubed is about 0.9703. Every required dependency adds another potential point of failure."
+        }
+      ]
+    },
+    {
+      "title": "Independent deployment & data",
+      "summary": "Independent releases need stable contracts, backward compatibility, and enforced data ownership.",
+      "objectives": [
+        "Plan an expand-and-contract change.",
+        "Separate database access between services."
+      ],
+      "keyPoints": [
+        "A new provider version must still support running consumers.",
+        "Additive changes can ease migration before removing old fields.",
+        "Separate schemas and users can enforce ownership on one database server."
+      ],
+      "practice": [
+        "Rename a field through a compatible transition and restrict each database user to its own schema.",
+        "Old consumers continue working during rollout."
+      ],
+      "exercises": [
+        {
+          "prompt": "Inventory replaces qty with available. Order the compatible release steps.",
+          "items": [
+            "Inventory returns both qty and available.",
+            "Update Order to read available.",
+            "Confirm no consumer still reads qty.",
+            "Remove qty from Inventory."
+          ],
+          "explanation": "Expand the contract first, migrate consumers, and only then remove the old field."
+        },
+        {
+          "prompt": "Order and Inventory share one PostgreSQL server for a lab. How can ownership still be enforced?",
+          "options": [
+            "Use separate schemas and users; Order’s user cannot access Inventory’s schema.",
+            "Use one schema and user and rely on a verbal agreement.",
+            "Put every service’s JSON in one data table.",
+            "Ignore ownership while the app runs."
+          ],
+          "explanation": "Sharing a database process can be practical, but database permissions should enforce the service boundaries."
+        }
+      ]
+    }
+  ]
+}

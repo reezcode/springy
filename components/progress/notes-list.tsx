@@ -18,8 +18,8 @@ export function NotesList({ outline }: { outline: Outline }) {
       <div className="rounded-2xl border border-dashed border-border-strong px-6 py-16 text-center">
         <NotebookPen className="mx-auto size-8 text-fg-subtle" aria-hidden="true" />
         <h2 className="mt-3 text-lg font-semibold">Belum ada catatan</h2>
-        <p className="mx-auto mt-1 max-w-sm text-sm text-fg-muted">Buka materi, lalu tulis pemahaman atau bukti praktikmu di bagian “Praktik mandiri”.</p>
-        <LinkButton href="/modules/" className="mt-5">Buka jalur belajar</LinkButton>
+        <p className="mx-auto mt-1 max-w-sm text-sm text-fg-muted">Di tiap materi ada bagian “Praktik mandiri”. Tulis catatan atau simpan hasil percobaanmu di sana.</p>
+        <LinkButton href="/modules/" className="mt-5">Buka learning path</LinkButton>
       </div>
     );
   }

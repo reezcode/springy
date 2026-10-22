@@ -1,6 +1,6 @@
 ## Inversion of Control
 
-Di modul SOLID kamu merakit object sendiri di `main`. Pada aplikasi besar, perakitan manual ini cepat merepotkan. **Inversion of Control (IoC)** memindahkan tanggung jawab membuat dan menghubungkan object ke framework. Di Spring, tugas itu dipegang **ApplicationContext**, dan object yang dikelolanya disebut **bean**.
+Di modul SOLID kamu merakit object sendiri di `main`. Pada aplikasi besar, mengatur semua dependency secara manual bisa merepotkan. **Inversion of Control (IoC)** memindahkan tanggung jawab membuat dan menghubungkan object ke framework. Di Spring, tugas itu dipegang **ApplicationContext**, dan object yang dikelolanya disebut **bean**.
 
 ```text
 Tanpa IoC:  kode kita  ──new──►  object-object
@@ -11,14 +11,14 @@ Dengan IoC: Spring     ──new──►  bean  ──inject──►  bean lai
 
 Cara paling umum adalah **stereotype annotation** yang ditemukan oleh component scan:
 
-| Anotasi | Dipakai untuk |
+| Annotation | Dipakai untuk |
 | --- | --- |
 | `@Component` | Komponen umum |
 | `@Service` | Logika bisnis / use case |
 | `@Repository` | Akses data; exception persistence diterjemahkan Spring |
 | `@RestController` | Endpoint HTTP yang mengembalikan body (JSON) |
 
-Untuk class dari library yang tidak bisa kamu beri anotasi, gunakan method `@Bean` di class `@Configuration`:
+Untuk class dari library yang tidak bisa kamu beri annotation, gunakan method `@Bean` di class `@Configuration`:
 
 ```java
 @Configuration
@@ -45,14 +45,14 @@ public class OrderService {
 }
 ```
 
-Saat membuat `OrderService`, Spring melihat constructor-nya, mencari bean bertipe `OrderRepository` dan `Clock`, lalu memberikannya. Jika class hanya punya **satu constructor**, anotasi `@Autowired` tidak diperlukan.
+Saat membuat `OrderService`, Spring melihat constructor-nya, mencari bean bertipe `OrderRepository` dan `Clock`, lalu memberikannya. Jika class hanya punya **satu constructor**, annotation `@Autowired` tidak diperlukan.
 
 > [!TIP] Kenapa bukan field injection?
 > `@Autowired private OrderRepository orders;` memang singkat, tetapi field tidak bisa `final`, dependency tersembunyi, dan class tidak bisa dibuat di unit test tanpa refleksi atau Spring. Constructor injection menghindari ketiganya.
 
 ## Bean scope dan state
 
-Secara default bean berscope **singleton**: satu instans per ApplicationContext, dipakai bersama oleh semua thread. Server web menangani banyak request sekaligus dengan banyak thread, sehingga semua thread itu memakai object service yang sama.
+Secara default bean memiliki scope **singleton**: satu instance per ApplicationContext, dipakai bersama oleh semua thread. Server web menangani banyak request sekaligus dengan banyak thread, sehingga semua thread itu memakai object service yang sama.
 
 ```java title="Berbahaya"
 @Service
@@ -63,7 +63,7 @@ class CartService {
 }
 ```
 
-Simpan data per request di variabel lokal, parameter, atau database. Field bean sebaiknya hanya berisi dependency yang tidak berubah.
+Simpan data per request di local variable, parameter, atau database. Field bean sebaiknya hanya berisi dependency yang tidak berubah.
 
 ## Ketika ada lebih dari satu kandidat
 

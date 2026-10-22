@@ -1,6 +1,6 @@
-## Masalah yang dipecahkan
+## Menghentikan call ke dependency yang bermasalah
 
-Timeout membatasi berapa lama satu panggilan menunggu. Tetapi jika Inventory sedang bermasalah, setiap request ke Order tetap menunggu sampai timeout, berkali-kali, sambil menambah beban ke Inventory yang sedang kesulitan. **Circuit breaker** menghentikan siklus itu: setelah cukup bukti bahwa dependency bermasalah, panggilan berikutnya langsung ditolak.
+Timeout membatasi berapa lama satu panggilan menunggu. Tetapi jika Inventory sedang bermasalah, setiap request ke Order tetap menunggu sampai timeout, berkali-kali, sambil menambah beban ke Inventory yang sedang kesulitan. **Circuit breaker** menghentikan siklus itu: setelah jumlah kegagalan melewati threshold yang ditentukan, panggilan berikutnya langsung ditolak.
 
 Namanya diambil dari sekring listrik: saat arus berbahaya terdeteksi, sirkuit diputus untuk melindungi sistem.
 
@@ -64,7 +64,7 @@ private StockLevel stockUnknown(String sku, Throwable cause) {
 }
 ```
 
-Fallback yang baik bergantung pada kebutuhan bisnis: data cache yang sedikit basi, nilai default yang aman, atau error jelas yang menyatakan layanan sementara tidak tersedia. Fallback **tidak boleh** berpura-pura sukses untuk operasi penting, misalnya menganggap stok tersedia lalu menerima order.
+Fallback yang baik bergantung pada kebutuhan bisnis: data cache yang belum sepenuhnya terbaru, nilai default yang aman, atau error jelas yang menyatakan layanan sementara tidak tersedia. Fallback **tidak boleh** berpura-pura sukses untuk operasi penting, misalnya menganggap stok tersedia lalu menerima order.
 
 ## Pola-pola pendamping
 

@@ -3,3 +3,16 @@ node_modules
 .git
 .env*
 *.zip
+out
+.generated
+app/(english)
+.agents
+.codex
+.aws
+tests
+.ssh
+.npmrc
+*.pem
+*.key
+playwright-report
+test-results

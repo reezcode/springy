@@ -178,3 +178,91 @@
   .tok-key { color: #7fb6ff; }
   .tok-command { color: #c4a7ff; font-weight: 600; }
 }
+
+/* Springy's movement uses transforms/opacity; no external animation runtime. */
+@keyframes springy-idle {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-4px) scale(1.015, .985); }
+}
+@keyframes springy-leaf {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes springy-blink {
+  0%, 43%, 47%, 100% { transform: scaleY(1); }
+  45% { transform: scaleY(.08); }
+}
+@keyframes springy-boing {
+  0% { transform: translateY(0) scale(1); }
+  18% { transform: translateY(5px) scale(1.14, .78); }
+  44% { transform: translateY(-18px) scale(.92, 1.12) rotate(-5deg); }
+  68% { transform: translateY(0) scale(1.07, .93) rotate(3deg); }
+  84% { transform: translateY(-5px) scale(.98, 1.02); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes springy-twinkle {
+  0%, 100% { opacity: .6; transform: scale(.85) rotate(-8deg); }
+  50% { opacity: 1; transform: scale(1.1) rotate(8deg); }
+}
+@keyframes springy-arrive {
+  from { opacity: 0; transform: translateY(12px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes springy-confetti {
+  0% { opacity: 0; transform: translate3d(0,-12vh,0) rotate(0deg); }
+  12% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(calc((var(--particle) - 9) * 13px),75vh,0) rotate(calc(var(--particle) * 63deg)); }
+}
+@keyframes springy-orbit {
+  0%, 100% { transform: translate3d(0,0,0); }
+  50% { transform: translate3d(-10px,8px,0); }
+}
+
+.springy-character { transform-origin: 80px 158px; animation: springy-idle 4s ease-in-out infinite; }
+.springy-jump { animation: springy-boing .85s ease-in-out 1; }
+.springy-leaves { transform-origin: 80px 40px; animation: springy-leaf 4.5s ease-in-out infinite; }
+.springy-blink { transform-origin: 80px 77px; animation: springy-blink 6s ease-in-out infinite; }
+.springy-eyes { transition: transform .12s ease-out; }
+.springy-star { transform-origin: 131px 37px; animation: springy-twinkle 3.5s ease-in-out infinite; }
+.springy-pet { touch-action: manipulation; transition: filter .2s ease; }
+.springy-pet:hover { filter: drop-shadow(0 8px 12px rgb(109 75 216 / .14)); }
+.springy-speech:not(.sr-only), .reward-toast, .badge-detail { animation: springy-arrive .3s ease-out both; }
+.xp-card { background: linear-gradient(125deg, #3b247d 0%, #6140b4 65%, #7855cd 100%); }
+.xp-orbit { position: absolute; z-index: -1; border: 1px solid rgb(255 255 255 / .12); border-radius: 50%; animation: springy-orbit 8s ease-in-out infinite; }
+.xp-orbit-one { width: 20rem; height: 20rem; right: -8rem; top: -7rem; }
+.xp-orbit-two { width: 14rem; height: 14rem; right: -4rem; top: -4rem; animation-delay: -4s; }
+.xp-fill { transition: width .65s cubic-bezier(.2,.8,.2,1); }
+.level-medallion { transform: rotate(8deg); transition: transform .3s ease; }
+.xp-card:hover .level-medallion { transform: rotate(-5deg) scale(1.06); }
+.badge-token { transition: transform .25s cubic-bezier(.2,.8,.2,1), box-shadow .25s ease; }
+.badge-tile:hover .badge-token, .badge-tile:focus-visible .badge-token { transform: translateY(-4px) rotate(-6deg); box-shadow: 0 6px 12px rgb(109 75 216 / .12); }
+.badge-color-0 { background: var(--color-tint-yellow); color: var(--color-tint-yellow-fg); border-color: var(--color-tint-yellow-fg); }
+.badge-color-1 { background: var(--color-tint-peach); color: var(--color-tint-peach-fg); border-color: var(--color-tint-peach-fg); }
+.badge-color-2 { background: var(--color-tint-lavender); color: var(--color-tint-lavender-fg); border-color: var(--color-tint-lavender-fg); }
+.badge-color-3 { background: var(--color-tint-peach); color: var(--color-tint-peach-fg); border-color: var(--color-tint-peach-fg); }
+.badge-color-4 { background: var(--color-tint-blue); color: var(--color-tint-blue-fg); border-color: var(--color-tint-blue-fg); }
+.badge-color-5 { background: var(--color-tint-mint); color: var(--color-tint-mint-fg); border-color: var(--color-tint-mint-fg); }
+.celebration-particles i {
+  position: absolute; top: 0; left: calc(5% + var(--particle) * 5%);
+  width: 7px; height: 12px; border-radius: 3px; background: #bba5f4;
+  animation: springy-confetti 1.5s ease-in both;
+  animation-delay: calc(var(--particle) * 19ms);
+}
+.celebration-particles i:nth-child(3n) { background: #a6ddb6; border-radius: 50%; width: 9px; height: 9px; }
+.celebration-particles i:nth-child(3n + 1) { background: #e9bd65; }
+.celebration-particles i:nth-child(5n) { background: #ed91af; }
+
+/* A persistent calm mode supplements, and never overrides, the OS setting. */
+[data-motion='off'] *, [data-motion='off'] *::before, [data-motion='off'] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+[data-motion='off'] .celebration-particles { display: none; }
+[data-motion='off'] .springy-eyes { transform: none !important; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .celebration-particles { display: none; }
+  .springy-eyes { transform: none !important; }
+}

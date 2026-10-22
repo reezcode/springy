@@ -89,6 +89,6 @@ ResponseEntity<OrderResponse> create(@Valid @RequestBody CreateOrderRequest requ
 ```
 
 > [!NOTE] Hal-hal yang sering disalahpahami
-> - **CORS bukan otorisasi.** CORS hanya mengatur browser mana yang boleh membaca response; `curl` dan service lain mengabaikannya.
-> - **CSRF** relevan untuk autentikasi berbasis cookie. API stateless dengan bearer token umumnya tidak memerlukan proteksi CSRF.
-> - **Otorisasi data** tetap tanggung jawab service. Scope `orders:read` tidak otomatis berarti boleh membaca order milik pengguna lain.
+> - **CORS bukan authorization.** CORS hanya mengatur browser mana yang boleh membaca response; `curl` dan service lain mengabaikannya.
+> - **CSRF** relevan untuk authentication berbasis cookie. API stateless dengan bearer token umumnya tidak memerlukan proteksi CSRF.
+> - **Authorization data** tetap tanggung jawab service. Scope `orders:read` tidak otomatis berarti boleh membaca order milik pengguna lain.

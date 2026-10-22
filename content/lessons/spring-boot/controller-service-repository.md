@@ -1,4 +1,4 @@
-## Tiga lapisan, tiga alasan berubah
+## Pembagian controller, service, dan repository
 
 Struktur yang umum di aplikasi Spring Boot memisahkan kode berdasarkan tanggung jawabnya:
 
@@ -35,7 +35,7 @@ public class GreetingController {
 }
 ```
 
-- `@RestController` = `@Controller` + `@ResponseBody`: nilai kembalian ditulis langsung sebagai body response. Object akan diubah ke JSON oleh Jackson.
+- `@RestController` = `@Controller` + `@ResponseBody`: return value ditulis langsung sebagai body response. Object akan diubah ke JSON oleh Jackson.
 - `@GetMapping` memetakan HTTP GET pada path tertentu ke method.
 - `@PathVariable` mengambil bagian path; `@RequestParam` mengambil query string (`?lang=id`).
 
@@ -72,9 +72,9 @@ curl -i http://localhost:8080/greetings/Adi
 # Halo, Adi!
 ```
 
-## Tanda controller terlalu gemuk
+## Tanda controller menangani terlalu banyak hal
 
-> [!WARNING] Bau kode di controller
+> [!WARNING] Code smell di controller
 > - Ada `if` yang memutuskan aturan bisnis (diskon, status, persetujuan).
 > - Controller memanggil repository langsung untuk operasi yang punya aturan.
 > - Controller membuka transaksi atau menyusun query.
@@ -84,7 +84,7 @@ Jika salah satu muncul, pindahkan logikanya ke service.
 
 ## Bukan aturan jumlah layer
 
-Struktur tiga lapisan adalah titik awal yang baik, bukan dogma. Untuk endpoint yang hanya membaca data tanpa aturan, controller → repository bisa saja cukup. Untuk domain yang kaya, aturan bisnis sebaiknya tinggal di domain object (`order.confirm()`), dan service hanya mengatur alur. Yang penting: **setiap bagian punya satu alasan berubah dan dependency mengalir ke arah yang konsisten.**
+Struktur tiga layer adalah titik awal yang baik, bukan dogma. Untuk endpoint yang hanya membaca data tanpa aturan, controller → repository bisa saja cukup. Untuk domain yang kaya, aturan bisnis sebaiknya ada di domain object (`order.confirm()`), dan service hanya mengatur alur. Yang penting: **setiap bagian punya satu alasan berubah dan dependency mengalir ke arah yang konsisten.**
 
 > [!TIP] Package by feature
-> Daripada package `controller/`, `service/`, `repository/` untuk seluruh aplikasi, pertimbangkan package per fitur: `order/`, `inventory/`. Semua class yang berubah bersama tinggal berdekatan, dan kelak lebih mudah dipisah menjadi service sendiri.
+> Daripada package `controller/`, `service/`, `repository/` untuk seluruh aplikasi, pertimbangkan package per fitur: `order/`, `inventory/`. Class yang berubah bersama berada di package yang sama, dan kelak lebih mudah dipisah menjadi service sendiri.

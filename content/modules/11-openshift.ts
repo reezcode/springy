@@ -5,9 +5,9 @@ const r = String.raw;
 const openshift: ModuleInput = {
   slug: 'openshift',
   title: 'Pengenalan OpenShift',
-  subtitle: 'Kenali OCP tanpa harus menjadi admin cluster.',
+  subtitle: 'Deploy aplikasi dan kenali resource utama OpenShift.',
   description:
-    'OpenShift Container Platform dari sudut pandang developer: project, Pod, Deployment, Service, Route, serta syarat image agar berjalan dengan arbitrary UID dan batas resource yang jelas.',
+    'Gunakan project, Pod, Deployment, Service, dan Route untuk menjalankan aplikasi di OpenShift. Siapkan image yang mendukung arbitrary UID, lalu tentukan resource request dan limit untuk aplikasi JVM.',
   category: 'Operasional',
   hours: '4–6',
   tint: 'peach',
@@ -25,9 +25,9 @@ const openshift: ModuleInput = {
       ],
       keyPoints: [
         'OpenShift Container Platform (OCP) adalah distribusi Kubernetes dari Red Hat dengan tambahan seperti Route, build, console web, dan kebijakan keamanan ketat.',
-        'Project adalah namespace Kubernetes dengan anotasi dan kontrol akses tambahan.',
+        'Project adalah namespace Kubernetes dengan annotation dan kontrol akses tambahan.',
         '`oc` adalah superset `kubectl`: perintah `kubectl` umumnya juga berjalan dengan `oc`.',
-        'Pada jalur ini fokusnya penggunaan cluster sebagai developer, bukan instalasi atau administrasi.',
+        'Pada learning path ini fokusnya penggunaan cluster sebagai developer, bukan instalasi atau administrasi.',
       ],
       practice: {
         task: 'Login ke sandbox OpenShift (misalnya Developer Sandbox), pilih project, dan daftar resource yang ada lewat console dan `oc`.',
@@ -130,7 +130,7 @@ spec:
             { text: 'Service membuat aplikasi lebih cepat.', why: 'Manfaatnya stabilitas alamat dan load balancing, bukan kecepatan.' },
             { text: 'Service menyimpan data aplikasi.', why: 'Service tidak menyimpan data.' },
           ],
-          explanation: 'Pod bersifat sementara. Service hanya meneruskan trafik ke pod yang lolos readiness probe, sehingga rollout dan restart tidak terlihat oleh pemanggil.',
+          explanation: 'Pod bersifat sementara. Service hanya meneruskan traffic ke pod yang lolos readiness probe, sehingga rollout dan restart tidak terlihat oleh pemanggil.',
         },
       ],
     },

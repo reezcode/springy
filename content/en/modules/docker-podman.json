@@ -1,0 +1,183 @@
+{
+  "title": "Docker & Podman",
+  "subtitle": "Build an image and run your application in a container.",
+  "description": "Learn images, containers, and registries, then create a non-root multi-stage Dockerfile. Connect services with Compose, persist data in volumes, and troubleshoot Podman rootless.",
+  "lessons": [
+    {
+      "title": "Image, container & registry",
+      "summary": "An image packages a filesystem and configuration. A container is an isolated process started from that image.",
+      "objectives": [
+        "Distinguish images from running containers.",
+        "Identify an image by tag or digest.",
+        "Describe the build, push, pull, and run workflow."
+      ],
+      "keyPoints": [
+        "One image can start multiple containers.",
+        "A container has its own writable layer and shares the host kernel.",
+        "Tags can move; a digest identifies fixed image content."
+      ],
+      "practice": [
+        "Build an image, push it to a registry, and run it on another host.",
+        "The running container uses the tested image digest."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which statements are correct?",
+          "options": [
+            "One image can run as multiple containers at the same time.",
+            "Changing a file inside a container does not change the original image.",
+            "A container is a virtual machine with its own kernel.",
+            "Writing to a container changes its source image."
+          ],
+          "explanation": "An image is a reusable read-only base. Each container adds its own writable layer and uses kernel isolation."
+        },
+        {
+          "prompt": "Which reference best ensures production runs the exact image content that was tested?",
+          "options": [
+            "registry.example.com/order@sha256:3f1c…",
+            "registry.example.com/order:latest",
+            "registry.example.com/order:0.1",
+            "order"
+          ],
+          "explanation": "A digest identifies image content. A tag can be reassigned to different content."
+        },
+        {
+          "prompt": "Order the steps from source code to a container running on another server.",
+          "items": [
+            "Build the JAR with ./mvnw package.",
+            "Build an image from the Dockerfile.",
+            "Push the image to a registry.",
+            "Pull the image on the server.",
+            "Run a container from that image."
+          ],
+          "explanation": "The registry distributes the same image from the build system to runtime hosts."
+        }
+      ]
+    },
+    {
+      "title": "Dockerfile & non-root processes",
+      "summary": "Multi-stage builds keep build tools out of the runtime image. A non-root user limits process privileges.",
+      "objectives": [
+        "Separate build and runtime stages.",
+        "Run as a numeric non-root UID.",
+        "Use exec-form ENTRYPOINT and explicit port publishing."
+      ],
+      "keyPoints": [
+        "Copy only runtime artifacts from the build stage.",
+        "An exec-form entrypoint allows the JVM to receive stop signals.",
+        "EXPOSE documents a port but does not publish it to the host."
+      ],
+      "practice": [
+        "Build a Java 21 runtime image with USER 10001 and an exec-form entrypoint.",
+        "The application runs without root and shuts down when it receives SIGTERM."
+      ],
+      "exercises": [
+        {
+          "prompt": "Complete the runtime stage: use eclipse-temurin:21-jre, copy the JAR from build, run as user 10001, and use exec-form ENTRYPOINT.",
+          "checks": [
+            "Use FROM eclipse-temurin:21-jre",
+            "Use COPY --from=build for the JAR",
+            "Set USER 10001",
+            "Use a JSON-array ENTRYPOINT",
+            "Do not run as root"
+          ],
+          "explanation": "The runtime stage omits Maven and source code. Exec form makes the JVM receive SIGTERM directly."
+        },
+        {
+          "prompt": "A Dockerfile has EXPOSE 8080. The container starts without -p. Can curl localhost:8080 on the host reach it?",
+          "options": [
+            "No. EXPOSE is documentation; publish the port with -p 8080:8080.",
+            "Yes. EXPOSE automatically publishes it.",
+            "Yes, but only on Linux.",
+            "No, because containers forbid port 8080."
+          ],
+          "explanation": "Port publication is a runtime setting. Binding to 127.0.0.1 restricts the published port to the local host."
+        }
+      ]
+    },
+    {
+      "title": "Network, volume & Compose",
+      "summary": "Use service names on a shared network and store persistent data outside the container’s writable layer.",
+      "objectives": [
+        "Connect containers through DNS service names.",
+        "Persist database data in a volume.",
+        "Wait for a database healthcheck during startup."
+      ],
+      "keyPoints": [
+        "localhost normally refers to the current container.",
+        "Named volumes survive container replacement.",
+        "depends_on with service_healthy waits for readiness at startup, not every later outage."
+      ],
+      "practice": [
+        "Connect Order and PostgreSQL through Compose with a volume and pg_isready healthcheck.",
+        "Order uses hostname db and starts after the database is healthy."
+      ],
+      "exercises": [
+        {
+          "prompt": "Configure Compose so order starts after db is healthy. Add a pg_isready healthcheck to db.",
+          "checks": [
+            "Add a db healthcheck using pg_isready",
+            "Set depends_on.db.condition to service_healthy",
+            "Do not use the simple - db list form"
+          ],
+          "explanation": "The condition waits for the database healthcheck. The application still needs to handle database failures after startup."
+        },
+        {
+          "prompt": "The app uses jdbc:postgresql://localhost:5432/orders, but PostgreSQL is in another container named db. What happens?",
+          "options": [
+            "The connection fails because localhost refers to the app container.",
+            "It works because all containers share localhost.",
+            "It only works in Podman.",
+            "Docker automatically replaces localhost with db."
+          ],
+          "explanation": "Use db as the hostname on their shared network. Containers only share localhost in configurations such as the same pod."
+        }
+      ]
+    },
+    {
+      "title": "Podman rootless & troubleshooting",
+      "summary": "Run containers without a root daemon and investigate process state, logs, port mappings, and permissions.",
+      "objectives": [
+        "Start Podman’s Linux VM on macOS or Windows.",
+        "Diagnose an unreachable container.",
+        "Check the application listen address."
+      ],
+      "keyPoints": [
+        "Podman uses user namespaces in rootless mode.",
+        "macOS and Windows need a Linux VM for Linux containers.",
+        "Published traffic cannot reach an app listening only on the container’s loopback address."
+      ],
+      "practice": [
+        "Run the image with Podman and diagnose a broken port or listen address.",
+        "The host reaches the health endpoint through an explicitly published local port."
+      ],
+      "exercises": [
+        {
+          "prompt": "A running order-lab container is unreachable at localhost:8080. Order these diagnostic checks.",
+          "items": [
+            "Check process state with podman ps.",
+            "Read podman logs order-lab.",
+            "Inspect podman port order-lab.",
+            "Test inside the container with podman exec order-lab curl -s localhost:8080/actuator/health."
+          ],
+          "explanation": "Check whether the process is running, then distinguish application errors, publication errors, and network access."
+        },
+        {
+          "prompt": "Which command starts Podman’s Linux VM on macOS?",
+          "hint": "Use the machine subcommand followed by start.",
+          "explanation": "Initialize the VM once with podman machine init, then start it with podman machine start."
+        },
+        {
+          "prompt": "The app started on port 8080 and -p is correct, but server.address=127.0.0.1. Why can the host not connect?",
+          "options": [
+            "The app listens only on container loopback; it should listen on 0.0.0.0.",
+            "Podman does not support port 8080.",
+            "It needs privileged mode.",
+            "The image must be pushed to a registry first."
+          ],
+          "explanation": "Published traffic enters through the container network interface, not its loopback interface."
+        }
+      ]
+    }
+  ]
+}

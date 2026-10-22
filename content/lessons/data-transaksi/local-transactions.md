@@ -1,6 +1,6 @@
-## Unit kerja yang atomik
+## Atomicity dalam transaksi
 
-Banyak use case melibatkan lebih dari satu perubahan. Membuat order bisa berarti menyimpan order, menyimpan item, dan mencatat audit. Jika langkah kedua gagal, langkah pertama tidak boleh tertinggal sendirian. **Transaksi** menjamin sifat ACID; yang paling terasa di sini adalah **atomicity**: semua berhasil, atau semua dibatalkan.
+Banyak use case melibatkan lebih dari satu perubahan. Membuat order bisa berarti menyimpan order, menyimpan item, dan mencatat audit. Jika penyimpanan item gagal, order juga perlu di-rollback. **Transaksi** menjamin sifat ACID; fokus contoh ini adalah **atomicity**: semua berhasil, atau semua dibatalkan.
 
 ## @Transactional
 

@@ -1,0 +1,206 @@
+{
+  "title": "Java & OOP",
+  "subtitle": "Understand classes, objects, and how to structure Java code.",
+  "description": "Learn classes, objects, interfaces, composition, collections, and exceptions through order and payment examples. You will use these concepts again when building Spring Boot applications.",
+  "lessons": [
+    {
+      "title": "Class, object & encapsulation",
+      "summary": "Classes define fields and methods. Each object has its own state, and encapsulation controls how that state changes.",
+      "objectives": [
+        "Distinguish classes, objects, fields, constructors, and methods.",
+        "Protect invariants with private fields and constructor validation.",
+        "Use final and immutable values where appropriate."
+      ],
+      "keyPoints": [
+        "A class is a blueprint; each object is an instance with its own state.",
+        "Encapsulation keeps business rules in the methods that change state.",
+        "Validate constructor arguments before accepting an object as valid.",
+        "Final prevents reassignment; mutable referenced values still need protection."
+      ],
+      "practice": [
+        "Create an Order with a private final BigDecimal total and an addItem method that rejects negative prices.",
+        "Invalid totals are rejected with IllegalArgumentException and total has no public setter."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which statement best describes a class and an object?",
+          "options": [
+            "A class is a blueprint; each object is an instance with its own state.",
+            "An object is a blueprint; a class is a copy of the object in memory.",
+            "Class and object mean exactly the same thing.",
+            "Each class can only have one object."
+          ],
+          "explanation": "A class defines fields and methods. Each new expression creates an object with its own field values."
+        },
+        {
+          "prompt": "Why should Order.total be private and only changed through methods such as addItem?",
+          "options": [
+            "So rules such as “total cannot be negative” are checked in one place.",
+            "To make the code run faster.",
+            "Because Java forbids public fields.",
+            "To allow inheritance."
+          ],
+          "explanation": "Private fields prevent callers from bypassing the methods that enforce business rules."
+        },
+        {
+          "prompt": "Complete Order: declare total as private final and reject negative totals in the constructor with IllegalArgumentException.",
+          "checks": [
+            "Declare private final BigDecimal total",
+            "Check for a negative total in the constructor",
+            "Throw IllegalArgumentException",
+            "Assign this.total = total",
+            "Do not expose a public total setter"
+          ],
+          "explanation": "Constructor validation checks the invariant before the object is returned to its caller."
+        }
+      ]
+    },
+    {
+      "title": "Interface, polymorphism & composition",
+      "summary": "An interface defines a contract. Polymorphism lets callers use different implementations through that contract, while composition connects objects.",
+      "objectives": [
+        "Write an interface and multiple implementations.",
+        "Explain runtime method dispatch through an interface.",
+        "Prefer composition when reusing behavior does not require inheritance."
+      ],
+      "keyPoints": [
+        "An interface describes the operations a caller can use.",
+        "Dynamic dispatch selects an implementation using the object’s runtime type.",
+        "Composition supplies a dependency instead of inheriting its implementation.",
+        "Use inheritance only when a subtype can fulfill its parent’s contract."
+      ],
+      "practice": [
+        "Create PaymentGateway with BankGateway and FakeGateway implementations, then pass one to Checkout through its constructor.",
+        "Checkout can switch gateways without changing its payment flow."
+      ],
+      "exercises": [
+        {
+          "prompt": "Given PaymentGateway gateway = new FakeGateway(), which method runs when gateway.charge(100) is called?",
+          "options": [
+            "FakeGateway.charge, selected using the object’s runtime type.",
+            "PaymentGateway.charge, because the variable is an interface.",
+            "Compilation fails because an interface cannot be a variable type.",
+            "It depends on import order."
+          ],
+          "explanation": "Dynamic dispatch calls the implementation on the actual object, not a method chosen by import order or the variable’s declared type."
+        },
+        {
+          "prompt": "Checkout needs to charge a payment. Which design is most flexible?",
+          "options": [
+            "Store a PaymentGateway received through the constructor.",
+            "Make Checkout extend BankGateway.",
+            "Create new BankGateway() inside pay.",
+            "Copy BankGateway.charge into Checkout."
+          ],
+          "explanation": "Composition through an interface lets the caller choose a real or fake gateway without changing Checkout."
+        },
+        {
+          "prompt": "Implement FakeGateway as a PaymentGateway and record the most recently charged amount in lastAmount.",
+          "checks": [
+            "Declare FakeGateway implements PaymentGateway",
+            "Declare a long lastAmount field",
+            "Make charge public",
+            "Store the amount in lastAmount"
+          ],
+          "explanation": "A fake gateway makes tests deterministic and lets them inspect the recorded amount without contacting a bank."
+        }
+      ]
+    },
+    {
+      "title": "Collections, generics & records",
+      "summary": "Choose List, Set, or Map for the way you access data. Generics check element types, and records keep data classes concise.",
+      "objectives": [
+        "Choose List, Set, or Map for a use case.",
+        "Read and write generic types such as Map<Long, Order>.",
+        "Use Optional and records for explicit data contracts."
+      ],
+      "keyPoints": [
+        "List preserves order, Set keeps unique elements, and Map associates keys with values.",
+        "Generics catch incompatible element types at compile time.",
+        "Declare an interface type and select an implementation separately.",
+        "Record components are final, but mutable component values still need defensive copies."
+      ],
+      "practice": [
+        "Store orders in Map<Long, Order> and implement Optional<Order> findById(long id).",
+        "Missing IDs return Optional.empty() and callers handle the missing value explicitly."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which structure is best for looking up orders by ID?",
+          "options": [
+            "Map<Long, Order>",
+            "List<Order>",
+            "Set<Long>",
+            "A fixed-size Order array"
+          ],
+          "explanation": "A Map associates an ID with its order. HashMap provides average constant-time key lookup."
+        },
+        {
+          "prompt": "Complete the method so it returns an empty Optional when the order is missing.",
+          "hint": "Use the Optional factory method for an absent value.",
+          "explanation": "Optional.empty() represents an absent order. Optional.ofNullable(orders.get(id)) is another concise option."
+        },
+        {
+          "prompt": "Write record OrderLine with String product and int quantity. Add a compact constructor that rejects quantity below 1.",
+          "checks": [
+            "Declare record OrderLine(String product, int quantity)",
+            "Add a compact constructor without a parameter list",
+            "Check quantity < 1",
+            "Throw IllegalArgumentException"
+          ],
+          "explanation": "A compact constructor validates components before Java assigns the record fields."
+        }
+      ]
+    },
+    {
+      "title": "Exception & resource lifecycle",
+      "summary": "Exceptions separate error handling from the normal flow. try-with-resources closes files, connections, and streams when a block exits.",
+      "objectives": [
+        "Distinguish checked and unchecked exceptions.",
+        "Close AutoCloseable resources with try-with-resources.",
+        "Handle failures without silently discarding their cause."
+      ],
+      "keyPoints": [
+        "Checked exceptions must be caught or declared with throws.",
+        "try-with-resources closes resources even when an exception interrupts the block.",
+        "Preserve the original cause when wrapping an exception.",
+        "An empty catch block hides a failure instead of handling it."
+      ],
+      "practice": [
+        "Read a product file using try-with-resources and report a missing file clearly.",
+        "Resources close reliably and the error identifies the file that could not be read."
+      ],
+      "exercises": [
+        {
+          "prompt": "Which are checked exceptions?",
+          "options": [
+            "IOException",
+            "IllegalArgumentException",
+            "NullPointerException",
+            "java.sql.SQLException"
+          ],
+          "explanation": "IOException and SQLException are checked exceptions. IllegalArgumentException and NullPointerException extend RuntimeException."
+        },
+        {
+          "prompt": "Open BufferedReader with try-with-resources so it closes even when reading fails.",
+          "checks": [
+            "Open the reader inside try (...)",
+            "Do not call reader.close() manually",
+            "Still read using readLine()"
+          ],
+          "explanation": "The original code skips close() if readLine() throws. try-with-resources handles cleanup on both success and failure."
+        },
+        {
+          "prompt": "What is the main problem with catch (IOException e) { }?",
+          "options": [
+            "It hides the failure and may let the program continue in an invalid state.",
+            "It cannot compile.",
+            "It necessarily makes the program slower.",
+            "Nothing, as long as the file usually exists."
+          ],
+          "explanation": "Handle the failure, let it propagate, or wrap it with context and its original cause. An empty catch gives the caller no indication that anything failed."
+        }
+      ]
+    }
+  ]
+}

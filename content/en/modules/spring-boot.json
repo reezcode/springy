@@ -1,0 +1,179 @@
+{
+  "title": "Spring Boot essentials",
+  "subtitle": "Create a project and understand what Spring manages.",
+  "description": "Create a project with Spring Initializr, run it with Maven Wrapper, and learn how Spring creates beans and connects dependencies. Organize controllers, services, and repositories, then configure each environment.",
+  "lessons": [
+    {
+      "title": "JDK, Maven & your first project",
+      "summary": "Use Java 21 and Maven Wrapper to create and run a consistent Spring Boot project.",
+      "objectives": [
+        "Create a project with Spring Initializr.",
+        "Run Maven lifecycle phases through the wrapper.",
+        "Identify the role of SpringBootApplication."
+      ],
+      "keyPoints": [
+        "The examples use Java 21 and Spring Boot 3-style configuration.",
+        "Maven Wrapper pins the Maven version used locally and in CI.",
+        "SpringBootApplication enables configuration and component scanning."
+      ],
+      "practice": [
+        "Create an Initializr project with Spring Web, Validation, and Actuator, then run it.",
+        "The application starts and /actuator/health returns UP."
+      ],
+      "exercises": [
+        {
+          "prompt": "What is the main advantage of ./mvnw over a globally installed mvn?",
+          "options": [
+            "Developers and CI use the Maven version pinned by the project.",
+            "Builds automatically run twice as fast.",
+            "A JDK is no longer required.",
+            "Dependencies never need downloading."
+          ],
+          "explanation": "The wrapper configuration records the Maven version, reducing differences between development and CI."
+        },
+        {
+          "prompt": "Order the Maven lifecycle phases.",
+          "items": [
+            "`validate`",
+            "`compile`",
+            "`test`",
+            "`package`",
+            "`verify`",
+            "`install`"
+          ],
+          "explanation": "Running a lifecycle phase also runs the earlier phases. package therefore includes compile and test."
+        },
+        {
+          "prompt": "Which annotation belongs on the main Spring Boot application class?",
+          "hint": "It combines configuration, auto-configuration, and component scanning.",
+          "explanation": "@SpringBootApplication enables auto-configuration and scans the main class’s package and its subpackages."
+        }
+      ]
+    },
+    {
+      "title": "IoC container & constructor injection",
+      "summary": "Spring creates and connects objects called beans. Constructors state which dependencies a bean needs.",
+      "objectives": [
+        "Register a service bean.",
+        "Receive required dependencies through a constructor.",
+        "Avoid mutable per-request fields in singleton beans."
+      ],
+      "keyPoints": [
+        "ApplicationContext creates and manages beans.",
+        "A single constructor does not need Autowired.",
+        "Singleton beans are shared, so request-specific data belongs in local variables or parameters."
+      ],
+      "practice": [
+        "Make OrderService a bean with a constructor-injected OrderRepository.",
+        "A unit test can create it with new OrderService(fakeRepository)."
+      ],
+      "exercises": [
+        {
+          "prompt": "Register OrderService as a Spring bean and inject OrderRepository through its constructor rather than a field.",
+          "checks": [
+            "Annotate the class with Service or Component",
+            "Declare private final OrderRepository",
+            "Accept OrderRepository in the constructor",
+            "Do not use Autowired field injection"
+          ],
+          "explanation": "Constructor injection makes dependencies explicit and allows ordinary Java construction in tests."
+        },
+        {
+          "prompt": "A Service bean stores currentOrder in a field and assigns it for each request. What is the risk?",
+          "options": [
+            "A shared singleton can overwrite or expose one user’s data to another request.",
+            "None; Spring creates a new service for every request.",
+            "The application cannot start.",
+            "Spring automatically makes the field thread-safe."
+          ],
+          "explanation": "Keep request-specific state in local variables or method arguments. A singleton service is shared by concurrent callers."
+        }
+      ]
+    },
+    {
+      "title": "Controller, service & repository",
+      "summary": "The controller handles HTTP, the service coordinates business behavior, and the repository accesses data.",
+      "objectives": [
+        "Map an HTTP route to a controller method.",
+        "Keep business rules out of transport code.",
+        "Test service behavior without a web server."
+      ],
+      "keyPoints": [
+        "RestController writes return values to the response body.",
+        "Service/domain rules should also work for messaging and scheduled jobs.",
+        "Repositories encapsulate data access rather than business decisions."
+      ],
+      "practice": [
+        "Build GET /greetings/{name} backed by a GreetingService.",
+        "The endpoint returns a greeting and the service can be tested independently."
+      ],
+      "exercises": [
+        {
+          "prompt": "Complete the controller so GET /greetings/{name} returns service.greet(name).",
+          "checks": [
+            "Annotate the class with RestController",
+            "Map GET /greetings/{name}",
+            "Use PathVariable on the name parameter",
+            "Call service.greet(name)"
+          ],
+          "explanation": "The controller adapts HTTP to the service. Greeting behavior stays testable without starting a server."
+        },
+        {
+          "prompt": "Where should the rule “orders above Rp10 million require manager approval” live?",
+          "options": [
+            "In the service or Order domain object, because it is a business rule.",
+            "Only in the controller, because it receives requests.",
+            "In the repository while saving the order.",
+            "Only in the frontend."
+          ],
+          "explanation": "Business rules belong in service/domain code so HTTP clients, message consumers, and jobs use the same behavior."
+        }
+      ]
+    },
+    {
+      "title": "Configuration & profiles",
+      "summary": "Run the same JAR in different environments by supplying configuration from files, environment variables, and arguments.",
+      "objectives": [
+        "Compare common property source priorities.",
+        "Bind related settings with ConfigurationProperties.",
+        "Keep passwords and tokens outside the repository."
+      ],
+      "keyPoints": [
+        "Command-line arguments override environment variables and ordinary config files.",
+        "Relaxed binding maps environment variable names to property names.",
+        "Profiles group environment-specific behavior; secrets should come from outside the image."
+      ],
+      "practice": [
+        "Bind inventory.base-url and inventory.timeout to InventoryProperties and override them through environment variables.",
+        "The same JAR uses different values without a rebuild."
+      ],
+      "exercises": [
+        {
+          "prompt": "application.yml sets port 8080, SERVER_PORT is 9090, and startup arguments include --server.port=7070. Which port is used?",
+          "options": [
+            "7070",
+            "9090",
+            "8080",
+            "Startup fails because the values conflict."
+          ],
+          "explanation": "In this simplified precedence order, command-line arguments override environment variables, which override the packaged config file."
+        },
+        {
+          "prompt": "Write the environment variable name for spring.datasource.url.",
+          "hint": "Use uppercase letters and replace dots with underscores.",
+          "explanation": "Relaxed binding maps SPRING_DATASOURCE_URL to spring.datasource.url."
+        },
+        {
+          "prompt": "Create InventoryProperties as a record bound to prefix inventory, with String baseUrl and Duration timeout.",
+          "checks": [
+            "Add ConfigurationProperties with prefix inventory",
+            "Declare record InventoryProperties",
+            "Include String baseUrl",
+            "Include Duration timeout"
+          ],
+          "explanation": "Register the record with EnableConfigurationProperties or ConfigurationPropertiesScan so it can be injected as a bean."
+        }
+      ]
+    }
+  ]
+}

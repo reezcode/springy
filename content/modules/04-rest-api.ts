@@ -5,9 +5,9 @@ const r = String.raw;
 const restApi: ModuleInput = {
   slug: 'rest-api',
   title: 'REST API yang rapi',
-  subtitle: 'Kontrak jelas, input dijaga, error terbaca.',
+  subtitle: 'Buat API dengan request dan response yang jelas.',
   description:
-    'Merancang resource dan status code yang tepat, memvalidasi input dengan DTO dan Bean Validation, memetakan error ke ProblemDetail, serta mendokumentasikan kontrak termasuk skenario gagal.',
+    'Rancang resource dan HTTP status code, validasi input dengan DTO dan Bean Validation, lalu susun error response memakai ProblemDetail. Lengkapi kontrak API dengan contoh request, response, dan edge cases.',
   category: 'Spring Boot',
   hours: '6–8',
   tint: 'blue',
@@ -16,7 +16,7 @@ const restApi: ModuleInput = {
     {
       slug: 'resource-http-status',
       title: 'Resource, HTTP method & status',
-      summary: 'Rancang URL sebagai resource, pilih method sesuai semantiknya, dan kembalikan status code yang jujur.',
+      summary: 'Rancang URL sebagai resource, pilih method sesuai semantiknya, dan kembalikan status code sesuai hasil operasinya.',
       minutes: 40,
       objectives: [
         'Merancang URL berbasis resource (`/orders`, `/orders/{id}`).',
@@ -100,7 +100,7 @@ ResponseEntity<OrderResponse> create(@RequestBody CreateOrderRequest request) {
       keyPoints: [
         'DTO adalah kontrak publik; entity adalah detail penyimpanan. Jangan ekspos entity langsung.',
         'Record cocok untuk DTO karena immutable dan ringkas.',
-        'Tanpa `@Valid`, anotasi constraint pada DTO tidak diperiksa.',
+        'Tanpa `@Valid`, annotation constraint pada DTO tidak diperiksa.',
         'Validasi format (field wajib, rentang angka) berbeda dari validasi aturan bisnis (stok cukup).',
       ],
       practice: {
@@ -192,7 +192,7 @@ class ApiExceptionHandler {
   }
 }`,
           checks: [
-            { label: '`@ExceptionHandler(OrderNotFoundException.class)`', pattern: r`@ExceptionHandler\s*\(\s*(value\s*=\s*)?\{?\s*OrderNotFoundException\.class`, hint: 'Anotasi method dengan `@ExceptionHandler(OrderNotFoundException.class)`.' },
+            { label: '`@ExceptionHandler(OrderNotFoundException.class)`', pattern: r`@ExceptionHandler\s*\(\s*(value\s*=\s*)?\{?\s*OrderNotFoundException\.class`, hint: 'Annotation method dengan `@ExceptionHandler(OrderNotFoundException.class)`.' },
             { label: 'Mengembalikan `ProblemDetail`', pattern: r`ProblemDetail\s+\w+\s*\(\s*OrderNotFoundException`, hint: 'Signature: `ProblemDetail handleNotFound(OrderNotFoundException ex)`.' },
             { label: 'Status 404', pattern: r`HttpStatus\s*\.\s*NOT_FOUND|forStatus(AndDetail)?\s*\(\s*404`, hint: 'Gunakan `HttpStatus.NOT_FOUND`.' },
             { label: 'Detail diambil dari exception', pattern: r`ex\s*\.\s*getMessage\s*\(\s*\)|setDetail\s*\(`, hint: 'Isi detail dengan `ex.getMessage()`.' },
@@ -206,20 +206,20 @@ class ApiExceptionHandler {
           options: [
             { text: '`{"status":500,"title":"Internal Server Error","detail":"Terjadi kesalahan. Kode referensi: 7f3a"}`', correct: true },
             { text: 'Stack trace lengkap agar klien bisa membantu debug.', why: 'Stack trace membocorkan struktur internal dan versi library.' },
-            { text: '`{"detail":"ERROR: duplicate key violates constraint orders_pkey (id)=(42)"}`', why: 'Pesan SQL membocorkan skema database.' },
+            { text: '`{"detail":"ERROR: duplicate key violates constraint orders_pkey (id)=(42)"}`', why: 'Pesan SQL membocorkan schema database.' },
             { text: 'Response kosong dengan status 200.', why: 'Status 200 untuk kegagalan menyesatkan klien.' },
           ],
-          explanation: 'Log detail lengkap di server dan kirim ID korelasi ke klien. Tim bisa mencari log dengan ID itu tanpa membocorkan detail internal.',
+          explanation: 'Log detail lengkap di server dan kirim correlation ID ke klien. Tim bisa mencari log dengan ID itu tanpa membocorkan detail internal.',
         },
       ],
     },
     {
       slug: 'api-contract-edge-cases',
-      title: 'Kontrak API & skenario tepi',
-      summary: 'Dokumentasikan payload dan perilaku gagal, bukan hanya happy path, lalu buktikan dengan contoh yang bisa diulang.',
+      title: 'API contract & edge cases',
+      summary: 'Tulis contoh payload, status code, dan error response agar pemakai API tahu apa yang harus ditangani.',
       minutes: 35,
       objectives: [
-        'Mendaftar skenario tepi: ID tidak ada, JSON rusak, body tidak valid.',
+        'Mendaftar edge cases: ID tidak ada, JSON rusak, body tidak valid.',
         'Menulis contoh curl dan hasil yang diharapkan.',
         'Memahami perubahan yang merusak kompatibilitas klien.',
       ],
