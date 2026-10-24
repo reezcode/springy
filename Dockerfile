@@ -1,5 +1,6 @@
 # Build both languages from the locked source dependencies.
-FROM node:22-alpine AS build
+# Node 22.23.4+ fixes the October 2026 security releases (CVE-2026-111497 et al.).
+FROM node:22.23.4-alpine AS build
 WORKDIR /app
 ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
